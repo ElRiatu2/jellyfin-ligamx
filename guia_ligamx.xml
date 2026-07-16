@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE tv SYSTEM "xmltv.dtd">
+<tv generator-info-name="GeneradorLigaMX">
+  <channel id="LigaMX.tv">
+    <display-name>Liga MX Premium</display-name>
+    <icon src="https://upload.wikimedia.org/wikipedia/commons/4/4d/Liga_MX_logo.svg" />
+  </channel>
+  <programme start="20260716202524 +0000" stop="20260717010000 +0000" channel="LigaMX.tv">
+    <title lang="es">Liga MX - Análisis y Repeticiones</title>
+    <desc lang="es">Análisis de la jornada, mejores jugadas y la previa de los siguientes encuentros.</desc>
+    <category lang="es">Deportes</category>
+  </programme>
+  <programme start="20260717010000 +0000" stop="20260717030000 +0000" channel="LigaMX.tv">
+    <title lang="es">Necaxa vs. Atlante (En Vivo)</title>
+    <desc lang="es">Transmisión en vivo del partido correspondiente a la Liga MX.</desc>
+    <category lang="es">Deportes</category>
+    <category lang="es">Fútbol</category>
+  </programme>
+  <programme start="20260717030000 +0000" stop="20260718030000 +0000" channel="LigaMX.tv">
+    <title lang="es">Liga MX - Análisis y Repeticiones</title>
+    <desc lang="es">Análisis de la jornada, mejores jugadas y la previa de los siguientes encuentros.</desc>
+    <category lang="es">Deportes</category>
+  </programme>
+</tv>
