@@ -5,29 +5,24 @@
     <display-name>Liga MX Premium</display-name>
     <icon src="https://upload.wikimedia.org/wikipedia/commons/4/4d/Liga_MX_logo.svg" />
   </channel>
-  <programme start="20260716203449 +0000" stop="20260717010000 +0000" channel="LigaMX.tv">
+  <programme start="20260717090004 +0000" stop="20260718010000 +0000" channel="LigaMX.tv">
     <title lang="es">Liga MX - Análisis y Repeticiones</title>
     <desc lang="es">Lo mejor del fútbol mexicano: análisis de la jornada, repeticiones de goles y debates.</desc>
     <category lang="es">Deportes</category>
   </programme>
-  <programme start="20260717010000 +0000" stop="20260717030000 +0000" channel="LigaMX.tv">
-    <title lang="es">Atlante at Necaxa (En Vivo)</title>
-    <desc lang="es">Transmisión en vivo del partido Atlante at Necaxa correspondiente al torneo de la Liga MX.</desc>
+  <programme start="20260718010000 +0000" stop="20260718030000 +0000" channel="LigaMX.tv">
+    <title lang="es">Cruz Azul at Atlético de San Luis (En Vivo)</title>
+    <desc lang="es">Transmisión en vivo del partido Cruz Azul at Atlético de San Luis correspondiente al torneo de la Liga MX.</desc>
     <category lang="es">Deportes</category>
     <category lang="es">Fútbol</category>
   </programme>
-  <programme start="20260717030000 +0000" stop="20260717031000 +0000" channel="LigaMX.tv">
-    <title lang="es">Liga MX - Análisis y Repeticiones</title>
-    <desc lang="es">Lo mejor del fútbol mexicano: análisis de la jornada, repeticiones de goles y debates.</desc>
-    <category lang="es">Deportes</category>
-  </programme>
-  <programme start="20260717031000 +0000" stop="20260717051000 +0000" channel="LigaMX.tv">
-    <title lang="es">Tigres UANL at Tijuana (En Vivo)</title>
-    <desc lang="es">Transmisión en vivo del partido Tigres UANL at Tijuana correspondiente al torneo de la Liga MX.</desc>
+  <programme start="20260718030000 +0000" stop="20260718050000 +0000" channel="LigaMX.tv">
+    <title lang="es">Puebla at FC Juarez (En Vivo)</title>
+    <desc lang="es">Transmisión en vivo del partido Puebla at FC Juarez correspondiente al torneo de la Liga MX.</desc>
     <category lang="es">Deportes</category>
     <category lang="es">Fútbol</category>
   </programme>
-  <programme start="20260717051000 +0000" stop="20260718051000 +0000" channel="LigaMX.tv">
+  <programme start="20260718050000 +0000" stop="20260719050000 +0000" channel="LigaMX.tv">
     <title lang="es">Liga MX - Análisis y Repeticiones</title>
     <desc lang="es">Lo mejor del fútbol mexicano: análisis de la jornada, repeticiones de goles y debates.</desc>
     <category lang="es">Deportes</category>
