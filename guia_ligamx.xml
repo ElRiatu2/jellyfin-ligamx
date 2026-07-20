@@ -5,7 +5,7 @@
     <display-name>Liga MX Premium</display-name>
     <icon src="https://upload.wikimedia.org/wikipedia/commons/4/4d/Liga_MX_logo.svg" />
   </channel>
-  <programme start="20260720060002 +0000" stop="20260722010000 +0000" channel="LigaMX.tv">
+  <programme start="20260720090002 +0000" stop="20260722010000 +0000" channel="LigaMX.tv">
     <title lang="es">Liga MX - Análisis y Repeticiones</title>
     <desc lang="es">Lo mejor del fútbol mexicano: análisis de la jornada, repeticiones de goles y debates.</desc>
     <category lang="es">Deportes</category>
