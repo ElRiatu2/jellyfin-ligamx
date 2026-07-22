@@ -5,29 +5,18 @@
     <display-name>Liga MX Premium</display-name>
     <icon src="https://upload.wikimedia.org/wikipedia/commons/4/4d/Liga_MX_logo.svg" />
   </channel>
-  <programme start="20260721090002 +0000" stop="20260722010000 +0000" channel="LigaMX.tv">
+  <programme start="20260722060003 +0000" stop="20260725030000 +0000" channel="LigaMX.tv">
     <title lang="es">Liga MX - Análisis y Repeticiones</title>
     <desc lang="es">Lo mejor del fútbol mexicano: análisis de la jornada, repeticiones de goles y debates.</desc>
     <category lang="es">Deportes</category>
   </programme>
-  <programme start="20260722010000 +0000" stop="20260722030000 +0000" channel="LigaMX.tv">
-    <title lang="es">Puebla at Cruz Azul (En Vivo)</title>
-    <desc lang="es">Transmisión en vivo del partido Puebla at Cruz Azul correspondiente al torneo de la Liga MX.</desc>
+  <programme start="20260725030000 +0000" stop="20260725050000 +0000" channel="LigaMX.tv">
+    <title lang="es">América at Atlante (En Vivo)</title>
+    <desc lang="es">Transmisión en vivo del partido América at Atlante correspondiente al torneo de la Liga MX.</desc>
     <category lang="es">Deportes</category>
     <category lang="es">Fútbol</category>
   </programme>
-  <programme start="20260722030000 +0000" stop="20260722030500 +0000" channel="LigaMX.tv">
-    <title lang="es">Liga MX - Análisis y Repeticiones</title>
-    <desc lang="es">Lo mejor del fútbol mexicano: análisis de la jornada, repeticiones de goles y debates.</desc>
-    <category lang="es">Deportes</category>
-  </programme>
-  <programme start="20260722030500 +0000" stop="20260722050500 +0000" channel="LigaMX.tv">
-    <title lang="es">Pumas UNAM at Toluca (En Vivo)</title>
-    <desc lang="es">Transmisión en vivo del partido Pumas UNAM at Toluca correspondiente al torneo de la Liga MX.</desc>
-    <category lang="es">Deportes</category>
-    <category lang="es">Fútbol</category>
-  </programme>
-  <programme start="20260722050500 +0000" stop="20260723050500 +0000" channel="LigaMX.tv">
+  <programme start="20260725050000 +0000" stop="20260726050000 +0000" channel="LigaMX.tv">
     <title lang="es">Liga MX - Análisis y Repeticiones</title>
     <desc lang="es">Lo mejor del fútbol mexicano: análisis de la jornada, repeticiones de goles y debates.</desc>
     <category lang="es">Deportes</category>
