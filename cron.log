@@ -1922,3 +1922,15 @@ Playlist M3U (/home/alam/jellyfin_ligamx/cable.m3u8) actualizada.
 [Jellyfin] Solicitando refresco de canales y guía TV...
   -> Tarea 0c9ee3a88fc15547c6852205480da1fd iniciada correctamente.
   -> Tarea bea9b218c97bbf98c5dc1303bdb9a0ca iniciada correctamente.
+[main c5e0f47] Auto-update: 2026-08-09 17:00
+ 1 file changed, 12 insertions(+)
+To https://github.com/ElRiatu2/jellyfin-ligamx.git
+   8ae1a36..c5e0f47  main -> main
+[2026-08-09 17:00] Iniciando generación de Guía XMLTV y M3U...
+Guía XMLTV (/home/alam/jellyfin_ligamx/guia_leaguescup.xml) actualizada.
+Playlist M3U (/home/alam/jellyfin_ligamx/cable.m3u8) actualizada.
+¡Push a repositorio 'jellyfin-ligamx' exitoso!
+¡Push de cable.m3u8 a repositorio 'cable' exitoso!
+[Jellyfin] Solicitando refresco de canales y guía TV...
+  -> Tarea 0c9ee3a88fc15547c6852205480da1fd iniciada correctamente.
+  -> Tarea bea9b218c97bbf98c5dc1303bdb9a0ca iniciada correctamente.
