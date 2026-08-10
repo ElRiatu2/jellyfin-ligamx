@@ -4,28 +4,28 @@
     <display-name>Leagues Cup 1</display-name>
     <icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"/>
   </channel>
-  <programme start="20260809000000 -0600" stop="20260810235959 -0600" channel="LeaguesCup1">
+  <programme start="20260810000000 -0600" stop="20260811235959 -0600" channel="LeaguesCup1">
     <title lang="es">Transmisión en Vivo: America vs Portland Timbers</title>
   </programme>
   <channel id="LeaguesCup2">
     <display-name>Leagues Cup 2</display-name>
     <icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"/>
   </channel>
-  <programme start="20260809000000 -0600" stop="20260810235959 -0600" channel="LeaguesCup2">
+  <programme start="20260810000000 -0600" stop="20260811235959 -0600" channel="LeaguesCup2">
     <title lang="es">Transmisión en Vivo: San Diego vs Tijuana</title>
   </programme>
   <channel id="LeaguesCup3">
     <display-name>Leagues Cup 3</display-name>
     <icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"/>
   </channel>
-  <programme start="20260809000000 -0600" stop="20260810235959 -0600" channel="LeaguesCup3">
+  <programme start="20260810000000 -0600" stop="20260811235959 -0600" channel="LeaguesCup3">
     <title lang="es">Transmisión en Vivo: Cruz Azul vs NYCFC</title>
   </programme>
   <channel id="LeaguesCup4">
     <display-name>Leagues Cup 4</display-name>
     <icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"/>
   </channel>
-  <programme start="20260809000000 -0600" stop="20260810235959 -0600" channel="LeaguesCup4">
+  <programme start="20260810000000 -0600" stop="20260811235959 -0600" channel="LeaguesCup4">
     <title lang="es">Transmisión en Vivo: Necaxa vs Atlanta</title>
   </programme>
 </tv>
