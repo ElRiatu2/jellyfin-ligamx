@@ -1,98 +1,167 @@
-#!/usr/bin/env python3
-import os
-import sys
-import time
+import requests
+import json
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
+import datetime
 import subprocess
-import urllib.request
-from datetime import datetime
+import os
+import re
 
 # ==========================================
-# 1. CONFIGURACIÓN
+# CONFIGURACIÓN GENERAL
 # ==========================================
-PATH_BASE = "/home/alam/jellyfin_ligamx"
-XML_FILE = os.path.join(PATH_BASE, "guia_leaguescup.xml")
-M3U_FILE = os.path.join(PATH_BASE, "cable.m3u8")
+SERVER_URL = "http://aioplus.es:80"
+USERNAME = "ALAM5462"
+PASSWORD = "jVf3Q5Bg"
 
-# Configuración de Jellyfin
+PATH_XMLTV = "/home/alam/jellyfin_ligamx/guia_leaguescup.xml"
+PATH_M3U = "/home/alam/jellyfin_ligamx/cable.m3u8"
+DIR_REPO = "/home/alam/jellyfin_ligamx"
+
 JELLYFIN_URL = "http://localhost:8096"
-JELLYFIN_TOKEN = "b06b770f7fc64107aef0ba2206b7af71"
-TASK_M3U_ID = "0c9ee3a88fc15547c6852205480da1fd"
-TASK_EPG_ID = "bea9b218c97bbf98c5dc1303bdb9a0ca"
-
-# Credenciales de GitHub (construcción dinámica para evitar escáner de secretos)
-GH_USER = "ElRiatu2"
-GH_TOKEN = os.getenv("GH_TOKEN", "ghp_" + "n90z301RE22gwWjZg7gX9b7HU2XLuB2kZt8r")
-REPO_CABLE_URL = f"https://{GH_USER}:{GH_TOKEN}@github.com/{GH_USER}/cable.git"
+JELLYFIN_API_KEY = "9a7db1b27e224e70876ff2a7e7bcbf20"
 
 # ==========================================
-# 2. GENERACIÓN DE GUÍA XMLTV Y PLAYLIST M3U
+# OBTENER STREAMS DE XTREAM
 # ==========================================
-def actualizar_archivos_locales():
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
-    print(f"[{timestamp}] Iniciando generación de Guía XMLTV y M3U...")
-    
-    # Aquí se ejecuta la lógica existente de parsing de partidos y asignación de streams
-    # (Tus funciones de extracción de Xtream y formateo XML/M3U)
-    
-    print(f"Guía XMLTV ({XML_FILE}) actualizada.")
-    print(f"Playlist M3U ({M3U_FILE}) actualizada.")
-
-# ==========================================
-# 3. SINCRONIZACIÓN CON GITHUB
-# ==========================================
-def sincronizar_github():
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
-    
-    # A) Push repositorio main: jellyfin-ligamx (Guía XML)
+def obtener_streams_xtream():
+    url = f"{SERVER_URL}/player_api.php?username={USERNAME}&password={PASSWORD}&action=get_live_streams"
     try:
-        subprocess.run(["git", "add", "."], cwd=PATH_BASE, check=True)
-        subprocess.run(["git", "commit", "-m", f"Auto-update: {timestamp}"], cwd=PATH_BASE, check=False)
-        subprocess.run(["git", "push", "origin", "main"], cwd=PATH_BASE, check=True)
+        response = requests.get(url, timeout=15)
+        if response.status_code == 200:
+            return response.json()
+    except Exception as e:
+        print(f"Error al obtener streams de Xtream: {e}")
+    return []
+
+def buscar_stream_evento(nombre_partido, lista_streams):
+    EXCLUSIONES = [
+        "latin america", "directv sports", "sky sports", "espn", 
+        "fox sports", "bein sports", "movistar", "pack futbol"
+    ]
+    
+    equipos = [
+        re.sub(r'[^a-zA-Z0-9]', '', eq.lower()) 
+        for eq in re.split(r'\bvs\b|\bv\b|\b-\b', nombre_partido, flags=re.IGNORECASE) 
+        if eq.strip()
+    ]
+    
+    candidatos_evento = []
+    candidatos_opcion = []
+
+    for stream in lista_streams:
+        nombre_stream = stream.get("name", "").lower()
+        stream_id = stream.get("stream_id")
+        
+        if not stream_id:
+            continue
+
+        if any(excl in nombre_stream for excl in EXCLUSIONES) and "vs" not in nombre_stream:
+            continue
+
+        coincide_equipo = any(eq in nombre_stream for eq in equipos if len(eq) > 3)
+        
+        if coincide_equipo:
+            if "leagues cup" in nombre_stream or "vs" in nombre_stream or "op" in nombre_stream:
+                candidatos_evento.append(stream_id)
+            else:
+                candidatos_opcion.append(stream_id)
+
+    target_id = None
+    if candidatos_evento:
+        target_id = candidatos_evento[0]
+    elif candidatos_opcion:
+        target_id = candidatos_opcion[0]
+
+    if target_id:
+        return f"{SERVER_URL}/live/{USERNAME}/{PASSWORD}/{target_id}.ts"
+    
+    return None
+
+# ==========================================
+# GENERACIÓN DE ARCHIVOS
+# ==========================================
+def generar_archivos():
+    now = datetime.datetime.now()
+    print(f"[{now.strftime('%Y-%m-%d %H:%M')}] Iniciando generación de Guía XMLTV y M3U...")
+
+    streams = obtener_streams_xtream()
+
+    canales = [
+        {"id": "LeaguesCup1", "name": "Leagues Cup 1", "busqueda": "America vs Portland Timbers"},
+        {"id": "LeaguesCup2", "name": "Leagues Cup 2", "busqueda": "San Diego vs Tijuana"},
+        {"id": "LeaguesCup3", "name": "Leagues Cup 3", "busqueda": "Cruz Azul vs NYCFC"},
+        {"id": "LeaguesCup4", "name": "Leagues Cup 4", "busqueda": "Necaxa vs Atlanta"}
+    ]
+
+    # Crear XMLTV
+    tv = ET.Element("tv", {"generator-info-name": "GeneradorLeaguesCup"})
+
+    m3u_content = "#EXTM3U\n"
+
+    for idx, ch in enumerate(canales, 1):
+        # Nodo de canal en XML
+        channel_elem = ET.SubElement(tv, "channel", {"id": ch["id"]})
+        dn = ET.SubElement(channel_elem, "display-name")
+        dn.text = ch["name"]
+        icon = ET.SubElement(channel_elem, "icon", {"src": "https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"})
+
+        # Buscar URL real del stream
+        url_stream = buscar_stream_evento(ch["busqueda"], streams)
+        if not url_stream:
+            url_stream = f"{SERVER_URL}/live/{USERNAME}/{PASSWORD}/1053641.ts"
+
+        # M3U Entry
+        m3u_content += f'#EXTINF:-1 tvg-id="{ch["id"]}" tvg-name="{ch["name"]}" tvg-logo="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png" group-title="Leagues Cup",{ch["name"]}\n'
+        m3u_content += f'{url_stream}\n'
+
+        # Programme ficticio para mantener la guía viva con offset -0600
+        start_time = now.strftime("%Y%m%d") + "000000 -0600"
+        end_time = (now + datetime.timedelta(days=1)).strftime("%Y%m%d") + "235959 -0600"
+        prog = ET.SubElement(tv, "programme", {
+            "start": start_time,
+            "stop": end_time,
+            "channel": ch["id"]
+        })
+        title = ET.SubElement(prog, "title", {"lang": "es"})
+        title.text = f"Transmisión en Vivo: {ch['busqueda']}"
+
+    # Guardar XML
+    xml_str = minidom.parseString(ET.tostring(tv, encoding="utf-8")).toprettyxml(indent="  ")
+    with open(PATH_XMLTV, "w", encoding="utf-8") as f:
+        f.write(xml_str)
+
+    # Guardar M3U
+    with open(PATH_M3U, "w", encoding="utf-8") as f:
+        f.write(m3u_content)
+
+    print(f"Guía XMLTV ({PATH_XMLTV}) actualizada.")
+    print(f"Playlist M3U ({PATH_M3U}) actualizada.")
+
+# ==========================================
+# GIT & JELLYFIN
+# ==========================================
+def ejecutar_git_y_notificar():
+    os.chdir(DIR_REPO)
+    try:
+        subprocess.run(["git", "add", "."], check=True)
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        subprocess.run(["git", "commit", "-m", f"Auto-update: {timestamp}"], check=False)
+        subprocess.run(["git", "push", "origin", "main"], check=True)
         print("¡Push a repositorio 'jellyfin-ligamx' exitoso!")
     except Exception as e:
-        print(f"Error en push a jellyfin-ligamx: {e}")
+        print(f"Error en Git push: {e}")
 
-    # B) Push repositorio secundario: cable (M3U que lee Jellyfin)
+    # Notificar a Jellyfin
+    headers = {"X-Emby-Token": JELLYFIN_API_KEY}
     try:
-        cmd_cable = f"""
-        mkdir -p /tmp/repo_cable && cd /tmp/repo_cable
-        git init -b main >/dev/null 2>&1
-        git config user.name "{GH_USER}"
-        git config user.email "alam@a-plex"
-        cp {M3U_FILE} .
-        git add cable.m3u8
-        git commit -m "Auto-update cable.m3u8: {timestamp}" >/dev/null 2>&1
-        git push {REPO_CABLE_URL} main --force >/dev/null 2>&1
-        rm -rf /tmp/repo_cable
-        """
-        subprocess.run(cmd_cable, shell=True, check=True)
-        print("¡Push de cable.m3u8 a repositorio 'cable' exitoso!")
+        r1 = requests.post(f"{JELLYFIN_URL}/ScheduledTasks/Running/0c9ee3a88fc15547c6852205480da1fd", headers=headers)
+        r2 = requests.post(f"{JELLYFIN_URL}/ScheduledTasks/Running/bea9b218c97bbf98c5dc1303bdb9a0ca", headers=headers)
+        if r1.status_code in [200, 204] and r2.status_code in [200, 204]:
+            print("[Jellyfin] Solicitando refresco de canales y guía TV enviado con éxito.")
     except Exception as e:
-        print(f"Error en push a repositorio cable: {e}")
+        print(f"Error al notificar a Jellyfin: {e}")
 
-# ==========================================
-# 4. NOTIFICACIÓN A JELLYFIN VIA API
-# ==========================================
-def notificar_jellyfin():
-    print("[Jellyfin] Solicitando refresco de canales y guía TV...")
-    headers = {"X-Emby-Token": JELLYFIN_TOKEN}
-    
-    tasks = [TASK_M3U_ID, TASK_EPG_ID]
-    for task_id in tasks:
-        url = f"{JELLYFIN_URL}/ScheduledTasks/Running/{task_id}"
-        try:
-            req = urllib.request.Request(url, headers=headers, method="POST")
-            with urllib.request.urlopen(req) as resp:
-                if resp.status in (200, 204):
-                    print(f"  -> Tarea {task_id} iniciada correctamente.")
-        except Exception as e:
-            print(f"  -> Error al invocar tarea {task_id}: {e}")
-
-# ==========================================
-# EJECUCIÓN PRINCIPAL
-# ==========================================
 if __name__ == "__main__":
-    actualizar_archivos_locales()
-    sincronizar_github()
-    time.sleep(3)
-    notificar_jellyfin()
+    generar_archivos()
+    ejecutar_git_y_notificar()
