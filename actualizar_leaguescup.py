@@ -10,8 +10,7 @@ SERVER_URL = "http://aioplus.es:80"
 USERNAME = "ALAM5462"
 PASSWORD = "jVf3Q5Bg"
 
-PATH_XMLTV_1 = "/home/alam/jellyfin_ligamx/guia_leaguescup.xml"
-PATH_XMLTV_2 = "/home/alam/jellyfin_ligamx/guia_ligamx.xml"
+PATH_XMLTV = "/home/alam/jellyfin_ligamx/guia_leaguescup.xml"
 PATH_M3U = "/home/alam/jellyfin_ligamx/cable.m3u8"
 DIR_REPO = "/home/alam/jellyfin_ligamx"
 
@@ -101,27 +100,31 @@ def extraer_partidos_del_dia(streams, now):
 
     return unicos
 
-def distribuir_en_canales(partidos):
-    canales = {f"LeaguesCup{i}": [] for i in range(1, 5)}
+def distribuir_sin_traslapes(partidos):
+    # Asigna eventos a canales garantizando QUE NINGÚN EVENTO SE EMPALME
+    canales = []  # Lista de listas de eventos
 
     for partido in partidos:
-        asignado = False
-        for ch_id in ["LeaguesCup1", "LeaguesCup2", "LeaguesCup3", "LeaguesCup4"]:
-            programas_canal = canales[ch_id]
+        colocado = False
+        for canal in canales:
+            # Checar si traslapa con algún partido ya metido en este canal
             traslapa = False
-            for p in programas_canal:
+            for p in canal:
                 if not (partido["dt_end"] <= p["dt_start"] or partido["dt_start"] >= p["dt_end"]):
                     traslapa = True
                     break
-            
             if not traslapa:
-                canales[ch_id].append(partido)
-                asignado = True
+                canal.append(partido)
+                colocado = True
                 break
+        
+        # Si traslapa en todos los canales existentes, abre un nuevo canal
+        if not colocado:
+            canales.append([partido])
 
-        if not asignado:
-            canal_menos_cargado = min(canales, key=lambda k: len(canales[k]))
-            canales[canal_menos_cargado].append(partido)
+    # Garantizar al menos 4 canales
+    while len(canales) < 4:
+        canales.append([])
 
     return canales
 
@@ -129,26 +132,27 @@ def generar_archivos():
     now = datetime.datetime.now()
     streams = obtener_streams_xtream()
     partidos = extraer_partidos_del_dia(streams, now)
-    canales_programacion = distribuir_en_canales(partidos)
+    canales_lista = distribuir_sin_traslapes(partidos)
 
     tv = ET.Element("tv", {"generator-info-name": "GeneradorLeaguesCup"})
     m3u_content = "#EXTM3U\n"
 
     # CANALES
-    for i in range(1, 5):
-        ch_id = f"LeaguesCup{i}"
-        ch_name = f"Leagues Cup {i}"
+    for idx in range(len(canales_lista)):
+        num = idx + 1
+        ch_id = f"LeaguesCup{num}"
+        ch_name = f"Leagues Cup {num}"
 
         channel_elem = ET.SubElement(tv, "channel", {"id": ch_id})
         dn = ET.SubElement(channel_elem, "display-name")
         dn.text = ch_name
         ET.SubElement(channel_elem, "icon", {"src": "https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"})
 
-    # PROGRAMAS
-    for i in range(1, 5):
-        ch_id = f"LeaguesCup{i}"
-        ch_name = f"Leagues Cup {i}"
-        partidos_canal = canales_programacion[ch_id]
+    # PROGRAMAS Y M3U
+    for idx, partidos_canal in enumerate(canales_lista):
+        num = idx + 1
+        ch_id = f"LeaguesCup{num}"
+        ch_name = f"Leagues Cup {num}"
         url_activa_m3u = ""
 
         if partidos_canal:
@@ -185,25 +189,25 @@ def generar_archivos():
             title.text = "Sin partido programado"
             desc = ET.SubElement(prog, "desc", {"lang": "es"})
             desc.text = "No hay partidos asignados a este canal en este momento."
+            url_activa_m3u = "http://localhost/empty.ts"
 
         m3u_content += f'#EXTINF:-1 tvg-id="{ch_id}" tvg-name="{ch_name}" tvg-logo="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png" group-title="Leagues Cup",{ch_name}\n'
         m3u_content += f'{url_activa_m3u}\n'
 
     tree = ET.ElementTree(tv)
-    tree.write(PATH_XMLTV_1, encoding="utf-8", xml_declaration=True)
-    tree.write(PATH_XMLTV_2, encoding="utf-8", xml_declaration=True)
+    tree.write(PATH_XMLTV, encoding="utf-8", xml_declaration=True)
 
     with open(PATH_M3U, "w", encoding="utf-8") as f:
         f.write(m3u_content)
 
-    print("XMLTV (ambos nombres) y M3U reescritos correctamente.")
+    print("XMLTV y M3U reescritos sin traslapes horarios.")
 
 def ejecutar_git_y_notificar():
     os.chdir(DIR_REPO)
     try:
         subprocess.run(["git", "add", "."], check=True)
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        subprocess.run(["git", "commit", "-m", f"Fix 404 and XML export: {timestamp}"], check=False)
+        subprocess.run(["git", "commit", "-m", f"Fix overlap channels: {timestamp}"], check=False)
         subprocess.run(["git", "push", "origin", "main"], check=True)
         print("Push a repositorio exitoso!")
     except Exception as e:
