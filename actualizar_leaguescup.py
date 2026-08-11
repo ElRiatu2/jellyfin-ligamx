@@ -1,7 +1,6 @@
 import requests
 import json
 import xml.etree.ElementTree as ET
-from xml.dom import minidom
 import datetime
 import subprocess
 import os
@@ -11,7 +10,8 @@ SERVER_URL = "http://aioplus.es:80"
 USERNAME = "ALAM5462"
 PASSWORD = "jVf3Q5Bg"
 
-PATH_XMLTV = "/home/alam/jellyfin_ligamx/guia_leaguescup.xml"
+PATH_XMLTV_1 = "/home/alam/jellyfin_ligamx/guia_leaguescup.xml"
+PATH_XMLTV_2 = "/home/alam/jellyfin_ligamx/guia_ligamx.xml"
 PATH_M3U = "/home/alam/jellyfin_ligamx/cable.m3u8"
 DIR_REPO = "/home/alam/jellyfin_ligamx"
 
@@ -134,7 +134,7 @@ def generar_archivos():
     tv = ET.Element("tv", {"generator-info-name": "GeneradorLeaguesCup"})
     m3u_content = "#EXTM3U\n"
 
-    # 1. ESCRIBIR TODOS LOS CANALES PRIMERO (ESTÁNDAR XMLTV)
+    # CANALES
     for i in range(1, 5):
         ch_id = f"LeaguesCup{i}"
         ch_name = f"Leagues Cup {i}"
@@ -144,7 +144,7 @@ def generar_archivos():
         dn.text = ch_name
         ET.SubElement(channel_elem, "icon", {"src": "https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"})
 
-    # 2. ESCRIBIR TODOS LOS PROGRAMAS DESPUÉS
+    # PROGRAMAS
     for i in range(1, 5):
         ch_id = f"LeaguesCup{i}"
         ch_name = f"Leagues Cup {i}"
@@ -155,12 +155,8 @@ def generar_archivos():
             partidos_canal.sort(key=lambda x: x["dt_start"])
 
             for p in partidos_canal:
-                # Convertir a formato UTC sin espacios
-                start_utc = p["dt_start"] + datetime.timedelta(hours=6)
-                end_utc = p["dt_end"] + datetime.timedelta(hours=6)
-
-                start_str = start_utc.strftime("%Y%m%d%H%M%S +0000")
-                end_str = end_utc.strftime("%Y%m%d%H%M%S +0000")
+                start_str = p["dt_start"].strftime("%Y%m%d%H%M%S -0600")
+                end_str = p["dt_end"].strftime("%Y%m%d%H%M%S -0600")
 
                 prog = ET.SubElement(tv, "programme", {
                     "start": start_str,
@@ -182,8 +178,8 @@ def generar_archivos():
                 else:
                     url_activa_m3u = partidos_canal[-1]["url"]
         else:
-            start_str = now.strftime("%Y%m%d000000 +0000")
-            end_str = (now + datetime.timedelta(days=1)).strftime("%Y%m%d235959 +0000")
+            start_str = now.strftime("%Y%m%d000000 -0600")
+            end_str = (now + datetime.timedelta(days=1)).strftime("%Y%m%d235959 -0600")
             prog = ET.SubElement(tv, "programme", {"start": start_str, "stop": end_str, "channel": ch_id})
             title = ET.SubElement(prog, "title", {"lang": "es"})
             title.text = "Sin partido programado"
@@ -193,21 +189,21 @@ def generar_archivos():
         m3u_content += f'#EXTINF:-1 tvg-id="{ch_id}" tvg-name="{ch_name}" tvg-logo="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png" group-title="Leagues Cup",{ch_name}\n'
         m3u_content += f'{url_activa_m3u}\n'
 
-    xml_str = minidom.parseString(ET.tostring(tv, encoding="utf-8")).toprettyxml(indent="  ")
-    with open(PATH_XMLTV, "w", encoding="utf-8") as f:
-        f.write(xml_str)
+    tree = ET.ElementTree(tv)
+    tree.write(PATH_XMLTV_1, encoding="utf-8", xml_declaration=True)
+    tree.write(PATH_XMLTV_2, encoding="utf-8", xml_declaration=True)
 
     with open(PATH_M3U, "w", encoding="utf-8") as f:
         f.write(m3u_content)
 
-    print("XMLTV reestructurado cumpliendo el estándar XMLTV.")
+    print("XMLTV (ambos nombres) y M3U reescritos correctamente.")
 
 def ejecutar_git_y_notificar():
     os.chdir(DIR_REPO)
     try:
         subprocess.run(["git", "add", "."], check=True)
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        subprocess.run(["git", "commit", "-m", f"Fix XMLTV Schema: {timestamp}"], check=False)
+        subprocess.run(["git", "commit", "-m", f"Fix 404 and XML export: {timestamp}"], check=False)
         subprocess.run(["git", "push", "origin", "main"], check=True)
         print("Push a repositorio exitoso!")
     except Exception as e:
