@@ -3005,3 +3005,11 @@ Error al obtener streams de Xtream: HTTPConnectionPool(host='aioplus.es', port=8
 Guía XMLTV (/home/alam/jellyfin_ligamx/guia_leaguescup.xml) actualizada.
 Playlist M3U (/home/alam/jellyfin_ligamx/cable.m3u8) actualizada.
 ¡Push a repositorio 'jellyfin-ligamx' exitoso!
+[main 194416c] Auto-update: 2026-08-10 23:45
+ 2 files changed, 11 insertions(+), 2 deletions(-)
+To https://github.com/ElRiatu2/jellyfin-ligamx.git
+   c3fceaf..194416c  main -> main
+[2026-08-10 23:45] Iniciando generación de Guía XMLTV y M3U...
+Guía XMLTV (/home/alam/jellyfin_ligamx/guia_leaguescup.xml) actualizada.
+Playlist M3U (/home/alam/jellyfin_ligamx/cable.m3u8) actualizada.
+¡Push a repositorio 'jellyfin-ligamx' exitoso!
