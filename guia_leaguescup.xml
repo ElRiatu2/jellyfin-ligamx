@@ -1,2 +1,45 @@
-<?xml version='1.0' encoding='utf-8'?>
-<tv generator-info-name="GeneradorLeaguesCup Fijo 4 Canales"><channel id="LeaguesCup1"><display-name>Leagues Cup 1</display-name><icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png" /></channel><programme start="20260811163000 -0600" stop="20260811180000 -0600" channel="LeaguesCup1"><title lang="es">11/08 - 16:30 - Leagues Cup Countdown [APPLE TV]: En Vivo</title><desc lang="es">Cobertura en vivo del evento de Leagues Cup.</desc></programme><programme start="20260811180000 -0600" stop="20260811203000 -0600" channel="LeaguesCup1"><title lang="es">Cincinnati Vs Atlas | Norteamérica - Leagues Cup: En Vivo</title><desc lang="es">Cobertura en vivo del evento de Leagues Cup.</desc></programme><programme start="20260811223000 -0600" stop="20260812010000 -0600" channel="LeaguesCup1"><title lang="es">11/08 - 22:30 - Leagues Cup Wrap-Up [APPLE TV]: En Vivo</title><desc lang="es">Cobertura en vivo del evento de Leagues Cup.</desc></programme><channel id="LeaguesCup2"><display-name>Leagues Cup 2</display-name><icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png" /></channel><programme start="20260811163000 -0600" stop="20260811183000 -0600" channel="LeaguesCup2"><title lang="es">11/08 - 16:30 - Leagues Cup La Previa [APPLE TV]: En Vivo</title><desc lang="es">Cobertura en vivo del evento de Leagues Cup.</desc></programme><programme start="20260811183000 -0600" stop="20260811210000 -0600" channel="LeaguesCup2"><title lang="es">Minnesota United Vs Atlante | Norteamérica - Leagues Cup: En Vivo</title><desc lang="es">Cobertura en vivo del evento de Leagues Cup.</desc></programme><programme start="20260811223000 -0600" stop="20260812010000 -0600" channel="LeaguesCup2"><title lang="es">11/08 - 22:30 - Leagues Cup El Resumen [APPLE TV]: En Vivo</title><desc lang="es">Cobertura en vivo del evento de Leagues Cup.</desc></programme><channel id="LeaguesCup3"><display-name>Leagues Cup 3</display-name><icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png" /></channel><programme start="20260811173000 -0600" stop="20260811193000 -0600" channel="LeaguesCup3"><title lang="es">Charlotte Vs Pachuca | Norteamérica - Leagues Cup: En Vivo</title><desc lang="es">Cobertura en vivo del evento de Leagues Cup.</desc></programme><programme start="20260811193000 -0600" stop="20260811220000 -0600" channel="LeaguesCup3"><title lang="es">Real Salt Lake Vs Juárez | Norteamérica - Leagues Cup: En Vivo</title><desc lang="es">Cobertura en vivo del evento de Leagues Cup.</desc></programme><channel id="LeaguesCup4"><display-name>Leagues Cup 4</display-name><icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png" /></channel><programme start="20260811173000 -0600" stop="20260811200000 -0600" channel="LeaguesCup4"><title lang="es">Columbus Crew Vs Pumas UNAM | Norteamérica - Leagues Cup: En Vivo</title><desc lang="es">Cobertura en vivo del evento de Leagues Cup.</desc></programme><programme start="20260811200000 -0600" stop="20260811223000 -0600" channel="LeaguesCup4"><title lang="es">Tigres UANL Vs Vancouver Whitecaps | Norteamérica - Leagues Cup: En Vivo</title><desc lang="es">Cobertura en vivo del evento de Leagues Cup.</desc></programme></tv>
+<?xml version="1.0" encoding="UTF-8"?>
+<tv generator-info-name="Leagues Cup Jellyfin Automation">
+  <channel id="LeaguesCup1">
+    <display-name>Leagues Cup 1</display-name>
+  </channel>
+  <channel id="LeaguesCup2">
+    <display-name>Leagues Cup 2</display-name>
+  </channel>
+  <channel id="LeaguesCup3">
+    <display-name>Leagues Cup 3</display-name>
+  </channel>
+  <channel id="LeaguesCup4">
+    <display-name>Leagues Cup 4</display-name>
+  </channel>
+  <programme start="20260811173000 -0600" stop="20260811200000 -0600" channel="LeaguesCup1">
+    <title lang="es">Charlotte Vs Pachuca</title>
+    <sub-title lang="es">Leagues Cup · 5:30 PM</sub-title>
+    <desc lang="es">Charlotte Vs Pachuca. Inicio: 11/08/2026 a las 5:30 PM. Canal: Leagues Cup 1.</desc>
+    <category lang="es">Deportes</category>
+  </programme>
+  <programme start="20260811173000 -0600" stop="20260811200000 -0600" channel="LeaguesCup2">
+    <title lang="es">Columbus Crew Vs Pumas UNAM</title>
+    <sub-title lang="es">Leagues Cup · 5:30 PM</sub-title>
+    <desc lang="es">Columbus Crew Vs Pumas UNAM. Inicio: 11/08/2026 a las 5:30 PM. Canal: Leagues Cup 2.</desc>
+    <category lang="es">Deportes</category>
+  </programme>
+  <programme start="20260811180000 -0600" stop="20260811203000 -0600" channel="LeaguesCup3">
+    <title lang="es">Cincinnati Vs Atlas</title>
+    <sub-title lang="es">Leagues Cup · 6:00 PM</sub-title>
+    <desc lang="es">Cincinnati Vs Atlas. Inicio: 11/08/2026 a las 6:00 PM. Canal: Leagues Cup 3.</desc>
+    <category lang="es">Deportes</category>
+  </programme>
+  <programme start="20260811183000 -0600" stop="20260811210000 -0600" channel="LeaguesCup4">
+    <title lang="es">Minnesota United Vs Atlante</title>
+    <sub-title lang="es">Leagues Cup · 6:30 PM</sub-title>
+    <desc lang="es">Minnesota United Vs Atlante. Inicio: 11/08/2026 a las 6:30 PM. Canal: Leagues Cup 4.</desc>
+    <category lang="es">Deportes</category>
+  </programme>
+  <programme start="20260811200000 -0600" stop="20260811223000 -0600" channel="LeaguesCup1">
+    <title lang="es">Tigres UANL Vs Vancouver Whitecaps</title>
+    <sub-title lang="es">Leagues Cup · 8:00 PM</sub-title>
+    <desc lang="es">Tigres UANL Vs Vancouver Whitecaps. Inicio: 11/08/2026 a las 8:00 PM. Canal: Leagues Cup 1.</desc>
+    <category lang="es">Deportes</category>
+  </programme>
+</tv>
