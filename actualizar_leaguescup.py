@@ -36,14 +36,16 @@ def obtener_streams_xtream():
 
 def extraer_partidos_del_dia(streams):
     """
-    Filtra los eventos activos o programados de Leagues Cup / Fútbol del día desde Xtream.
+    Filtra ÚNICAMENTE los eventos de Leagues Cup.
+    Descarte estricto de otros deportes y torneos.
     """
     EXCLUSIONES = [
         "latin america", "directv sports", "sky sports", "espn", 
-        "fox sports", "bein sports", "movistar", "pack futbol"
+        "fox sports", "bein sports", "movistar", "pack futbol",
+        "champions league", "rugby", "tennis", "formula 1", "f1", 
+        "mlb", "nba", "liga betplay", "copa libertadores"
     ]
     
-    hoy_str = datetime.datetime.now().strftime("%d/%m")
     eventos_encontrados = []
 
     for stream in streams:
@@ -54,13 +56,12 @@ def extraer_partidos_del_dia(streams):
         if not stream_id:
             continue
 
-        # Evitar canales genéricos
-        if any(excl in nombre_lower for excl in EXCLUSIONES) and "vs" not in nombre_lower:
+        # Descartar torneos/deportes no deseados
+        if any(excl in nombre_lower for excl in EXCLUSIONES):
             continue
 
-        # Debe ser un partido/evento (tener 'vs' o 'v' o 'leagues cup')
-        if "vs" in nombre_lower or "leagues cup" in nombre_lower:
-            # Si el canal trae fecha en el nombre, preferir los de hoy
+        # REQUISITO EXCLUSIVO: Debe ser explícitamente Leagues Cup
+        if "leagues cup" in nombre_lower or "leagues" in nombre_lower:
             url_stream = f"{SERVER_URL}/live/{USERNAME}/{PASSWORD}/{stream_id}.ts"
             
             # Limpiar nombre comercial
@@ -88,16 +89,13 @@ def extraer_partidos_del_dia(streams):
 # ==========================================
 def generar_archivos():
     now = datetime.datetime.now()
-    print(f"[{now.strftime('%Y-%m-%d %H:%M')}] Buscando partidos actualizados...")
+    print(f"[{now.strftime('%Y-%m-%d %H:%M')}] Filtrando exclusivamente partidos de Leagues Cup...")
 
     streams = obtener_streams_xtream()
     partidos = extraer_partidos_del_dia(streams)
 
     tv = ET.Element("tv", {"generator-info-name": "GeneradorLeaguesCup"})
     m3u_content = "#EXTM3U\n"
-
-    # Definir slots fijos para la guía (hasta 4 canales de Leagues Cup)
-    num_canales = max(4, len(partidos))
 
     for i in range(1, 5):
         ch_id = f"LeaguesCup{i}"
@@ -109,20 +107,20 @@ def generar_archivos():
         dn.text = ch_name
         ET.SubElement(channel_elem, "icon", {"src": "https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"})
 
-        # Asignar evento de la lista o standby si no hay partido asignado
+        # Asignar evento de Leagues Cup o estado de espera si aún no hay transmisión activa
         if i - 1 < len(partidos):
             evento = partidos[i - 1]
             titulo_partido = evento["titulo"]
             url_stream = evento["url"]
         else:
-            titulo_partido = "Sin transmisión programada por el momento"
+            titulo_partido = "Sin partido de Leagues Cup programado en este momento"
             url_stream = f"{SERVER_URL}/live/{USERNAME}/{PASSWORD}/1053641.ts"
 
         # Entrada M3U
         m3u_content += f'#EXTINF:-1 tvg-id="{ch_id}" tvg-name="{ch_name}" tvg-logo="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png" group-title="Leagues Cup",{ch_name}\n'
         m3u_content += f'{url_stream}\n'
 
-        # Programa XMLTV dinámico para el día actual
+        # Programa XMLTV dinámico
         start_time = now.strftime("%Y%m%d") + "000000 -0600"
         end_time = (now + datetime.timedelta(days=1)).strftime("%Y%m%d") + "235959 -0600"
         prog = ET.SubElement(tv, "programme", {
@@ -142,8 +140,8 @@ def generar_archivos():
     with open(PATH_M3U, "w", encoding="utf-8") as f:
         f.write(m3u_content)
 
-    print(f"Guía XMLTV ({PATH_XMLTV}) actualizada dinámicamente.")
-    print(f"Playlist M3U ({PATH_M3U}) actualizada dinámicamente.")
+    print(f"Guía XMLTV ({PATH_XMLTV}) actualizada con filtro estricto.")
+    print(f"Playlist M3U ({PATH_M3U}) actualizada con filtro estricto.")
 
 # ==========================================
 # GIT & JELLYFIN

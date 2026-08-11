@@ -3285,3 +3285,12 @@ To https://github.com/ElRiatu2/jellyfin-ligamx.git
 Guía XMLTV (/home/alam/jellyfin_ligamx/guia_leaguescup.xml) actualizada.
 Playlist M3U (/home/alam/jellyfin_ligamx/cable.m3u8) actualizada.
 ¡Push a repositorio 'jellyfin-ligamx' exitoso!
+En la rama main
+Tu rama está actualizada con 'origin/main'.
+
+nada para hacer commit, el árbol de trabajo está limpio
+Everything up-to-date
+[2026-08-11 08:30] Buscando partidos actualizados...
+Guía XMLTV (/home/alam/jellyfin_ligamx/guia_leaguescup.xml) actualizada dinámicamente.
+Playlist M3U (/home/alam/jellyfin_ligamx/cable.m3u8) actualizada dinámicamente.
+¡Push a repositorio 'jellyfin-ligamx' exitoso!
