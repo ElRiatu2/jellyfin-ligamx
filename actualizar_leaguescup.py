@@ -7,9 +7,6 @@ import subprocess
 import os
 import re
 
-# ==========================================
-# CONFIGURACIÓN GENERAL
-# ==========================================
 SERVER_URL = "http://aioplus.es:80"
 USERNAME = "ALAM5462"
 PASSWORD = "jVf3Q5Bg"
@@ -21,9 +18,6 @@ DIR_REPO = "/home/alam/jellyfin_ligamx"
 JELLYFIN_URL = "http://localhost:8096"
 JELLYFIN_API_KEY = "9a7db1b27e224e70876ff2a7e7bcbf20"
 
-# ==========================================
-# OBTENER Y PARSEAR STREAMS
-# ==========================================
 def obtener_streams_xtream():
     url = f"{SERVER_URL}/player_api.php?username={USERNAME}&password={PASSWORD}&action=get_live_streams"
     try:
@@ -31,7 +25,7 @@ def obtener_streams_xtream():
         if response.status_code == 200:
             return response.json()
     except Exception as e:
-        print(f"Error al obtener streams de Xtream: {e}")
+        print(f"Error al obtener streams: {e}")
     return []
 
 def formatear_partido(nombre_raw):
@@ -92,14 +86,11 @@ def extraer_partidos_del_dia(streams, now):
                 "desc": desc,
                 "dt_start": dt_start,
                 "dt_end": dt_end,
-                "url": url_stream,
-                "stream_id": stream_id
+                "url": url_stream
             })
 
-    # Ordenar por hora de inicio
     eventos.sort(key=lambda x: x["dt_start"])
     
-    # Filtrar duplicados exactos
     unicos = []
     vistos = set()
     for ev in eventos:
@@ -110,21 +101,13 @@ def extraer_partidos_del_dia(streams, now):
 
     return unicos
 
-# ==========================================
-# DISTRIBUCIÓN SIN TRASLAPOS
-# ==========================================
 def distribuir_en_canales(partidos):
-    """
-    Asigna cada partido al primer canal que NO tenga un evento cruzándose en horario.
-    """
     canales = {f"LeaguesCup{i}": [] for i in range(1, 5)}
 
     for partido in partidos:
         asignado = False
         for ch_id in ["LeaguesCup1", "LeaguesCup2", "LeaguesCup3", "LeaguesCup4"]:
             programas_canal = canales[ch_id]
-            
-            # Verificar si se traslapa con algún programa ya existente en este canal
             traslapa = False
             for p in programas_canal:
                 if not (partido["dt_end"] <= p["dt_start"] or partido["dt_start"] >= p["dt_end"]):
@@ -136,20 +119,14 @@ def distribuir_en_canales(partidos):
                 asignado = True
                 break
 
-        # Si los 4 canales están ocupados a esa hora, asigna por fuerza al de menor carga
         if not asignado:
             canal_menos_cargado = min(canales, key=lambda k: len(canales[k]))
             canales[canal_menos_cargado].append(partido)
 
     return canales
 
-# ==========================================
-# GENERACIÓN DE ARCHIVOS
-# ==========================================
 def generar_archivos():
     now = datetime.datetime.now()
-    print(f"[{now.strftime('%Y-%m-%d %H:%M')}] Reparando la distribución de partidos sin solapamientos...")
-
     streams = obtener_streams_xtream()
     partidos = extraer_partidos_del_dia(streams, now)
     canales_programacion = distribuir_en_canales(partidos)
@@ -157,6 +134,7 @@ def generar_archivos():
     tv = ET.Element("tv", {"generator-info-name": "GeneradorLeaguesCup"})
     m3u_content = "#EXTM3U\n"
 
+    # 1. ESCRIBIR TODOS LOS CANALES PRIMERO (ESTÁNDAR XMLTV)
     for i in range(1, 5):
         ch_id = f"LeaguesCup{i}"
         ch_name = f"Leagues Cup {i}"
@@ -166,16 +144,23 @@ def generar_archivos():
         dn.text = ch_name
         ET.SubElement(channel_elem, "icon", {"src": "https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"})
 
+    # 2. ESCRIBIR TODOS LOS PROGRAMAS DESPUÉS
+    for i in range(1, 5):
+        ch_id = f"LeaguesCup{i}"
+        ch_name = f"Leagues Cup {i}"
         partidos_canal = canales_programacion[ch_id]
         url_activa_m3u = ""
 
         if partidos_canal:
-            # Ordenar eventos del canal por hora
             partidos_canal.sort(key=lambda x: x["dt_start"])
 
             for p in partidos_canal:
-                start_str = p["dt_start"].strftime("%Y%m%d%H%M%S -0600")
-                end_str = p["dt_end"].strftime("%Y%m%d%H%M%S -0600")
+                # Convertir a formato UTC sin espacios
+                start_utc = p["dt_start"] + datetime.timedelta(hours=6)
+                end_utc = p["dt_end"] + datetime.timedelta(hours=6)
+
+                start_str = start_utc.strftime("%Y%m%d%H%M%S +0000")
+                end_str = end_utc.strftime("%Y%m%d%H%M%S +0000")
 
                 prog = ET.SubElement(tv, "programme", {
                     "start": start_str,
@@ -197,8 +182,8 @@ def generar_archivos():
                 else:
                     url_activa_m3u = partidos_canal[-1]["url"]
         else:
-            start_str = now.strftime("%Y%m%d000000 -0600")
-            end_str = (now + datetime.timedelta(days=1)).strftime("%Y%m%d235959 -0600")
+            start_str = now.strftime("%Y%m%d000000 +0000")
+            end_str = (now + datetime.timedelta(days=1)).strftime("%Y%m%d235959 +0000")
             prog = ET.SubElement(tv, "programme", {"start": start_str, "stop": end_str, "channel": ch_id})
             title = ET.SubElement(prog, "title", {"lang": "es"})
             title.text = "Sin partido programado"
@@ -215,17 +200,14 @@ def generar_archivos():
     with open(PATH_M3U, "w", encoding="utf-8") as f:
         f.write(m3u_content)
 
-    print("XMLTV corregido: Eventos repartidos sin horarios encimados.")
+    print("XMLTV reestructurado cumpliendo el estándar XMLTV.")
 
-# ==========================================
-# GIT & JELLYFIN
-# ==========================================
 def ejecutar_git_y_notificar():
     os.chdir(DIR_REPO)
     try:
         subprocess.run(["git", "add", "."], check=True)
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        subprocess.run(["git", "commit", "-m", f"Fix overlap: {timestamp}"], check=False)
+        subprocess.run(["git", "commit", "-m", f"Fix XMLTV Schema: {timestamp}"], check=False)
         subprocess.run(["git", "push", "origin", "main"], check=True)
         print("Push a repositorio exitoso!")
     except Exception as e:
@@ -236,9 +218,9 @@ def ejecutar_git_y_notificar():
         r1 = requests.post(f"{JELLYFIN_URL}/ScheduledTasks/Running/0c9ee3a88fc15547c6852205480da1fd", headers=headers)
         r2 = requests.post(f"{JELLYFIN_URL}/ScheduledTasks/Running/bea9b218c97bbf98c5dc1303bdb9a0ca", headers=headers)
         if r1.status_code in [200, 204] and r2.status_code in [200, 204]:
-            print("[Jellyfin] Notificación enviada para refrescar la guía.")
+            print("[Jellyfin] Tareas activadas.")
     except Exception as e:
-        print(f"Error al notificar a Jellyfin: {e}")
+        print(f"Error en API Jellyfin: {e}")
 
 if __name__ == "__main__":
     generar_archivos()
