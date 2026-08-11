@@ -2945,3 +2945,12 @@ Error al obtener streams de Xtream: HTTPConnectionPool(host='aioplus.es', port=8
 Guía XMLTV (/home/alam/jellyfin_ligamx/guia_leaguescup.xml) actualizada.
 Playlist M3U (/home/alam/jellyfin_ligamx/cable.m3u8) actualizada.
 ¡Push a repositorio 'jellyfin-ligamx' exitoso!
+[main 4667469] Auto-update: 2026-08-10 22:00
+ 1 file changed, 9 insertions(+)
+To https://github.com/ElRiatu2/jellyfin-ligamx.git
+   de0d824..4667469  main -> main
+[2026-08-10 22:00] Iniciando generación de Guía XMLTV y M3U...
+Error al obtener streams de Xtream: HTTPConnectionPool(host='aioplus.es', port=80): Max retries exceeded with url: /player_api.php?username=ALAM5462&password=jVf3Q5Bg&action=get_live_streams (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7566dec31850>: Failed to establish a new connection: [Errno 111] Connection refused'))
+Guía XMLTV (/home/alam/jellyfin_ligamx/guia_leaguescup.xml) actualizada.
+Playlist M3U (/home/alam/jellyfin_ligamx/cable.m3u8) actualizada.
+¡Push a repositorio 'jellyfin-ligamx' exitoso!
