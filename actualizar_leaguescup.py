@@ -34,11 +34,33 @@ def obtener_streams_xtream():
         print(f"Error al obtener streams de Xtream: {e}")
     return []
 
+def formatear_partido(nombre_raw):
+    """
+    Parsea los equipos para generar el formato '(Local) vs (Visita): En Vivo'
+    y construye una descripción atractiva para Jellyfin.
+    """
+    # Limpiar horas/fechas iniciales (ej: '20:15 09/08 | ')
+    limpio = re.sub(r'^\d{2}:\d{2}\s+\d{2}/\d{2}\s*\|\s*', '', nombre_raw)
+    # Quitar etiquetas secundarias al final
+    limpio = re.sub(r'\s*\|\s*(leagues cup|op\d+|hd|fhd|uhd|4k|sd).*$', '', limpio, flags=re.IGNORECASE).strip()
+
+    # Separar equipos por 'vs', 'v' o '-'
+    match = re.split(r'\s+(?:vs\.?|v\.?|-)\s+', limpio, flags=re.IGNORECASE)
+
+    if len(match) == 2:
+        local = match[0].strip()
+        visita = match[1].strip()
+        titulo = f"{local} vs {visita}: En Vivo"
+        desc = (f"Transmisión en vivo del duelo de Leagues Cup entre {local} y {visita}. "
+                f"Sigue cada jugada y emoción en alta definición totalmente en directo.")
+    else:
+        titulo = f"{limpio}: En Vivo"
+        desc = ("Disfruta la cobertura completa de la Leagues Cup con la mejor calidad "
+                "de video y señal en vivo sin interrupciones.")
+
+    return titulo, desc
+
 def extraer_partidos_del_dia(streams):
-    """
-    Filtra ÚNICAMENTE los eventos de Leagues Cup.
-    Descarte estricto de otros deportes y torneos.
-    """
     EXCLUSIONES = [
         "latin america", "directv sports", "sky sports", "espn", 
         "fox sports", "bein sports", "movistar", "pack futbol",
@@ -56,20 +78,17 @@ def extraer_partidos_del_dia(streams):
         if not stream_id:
             continue
 
-        # Descartar torneos/deportes no deseados
         if any(excl in nombre_lower for excl in EXCLUSIONES):
             continue
 
-        # REQUISITO EXCLUSIVO: Debe ser explícitamente Leagues Cup
         if "leagues cup" in nombre_lower or "leagues" in nombre_lower:
             url_stream = f"{SERVER_URL}/live/{USERNAME}/{PASSWORD}/{stream_id}.ts"
             
-            # Limpiar nombre comercial
-            nombre_limpio = re.sub(r'^\d{2}:\d{2}\s+\d{2}/\d{2}\s*\|\s*', '', nombre)
-            nombre_limpio = re.sub(r'\s*\|\s*(OP\d+|HD|FHD|UHD|4K|SD)\s*$', '', nombre_limpio, flags=re.IGNORECASE)
+            titulo, desc = formatear_partido(nombre)
 
             eventos_encontrados.append({
-                "titulo": nombre_limpio,
+                "titulo": titulo,
+                "desc": desc,
                 "url": url_stream,
                 "stream_id": stream_id
             })
@@ -89,7 +108,7 @@ def extraer_partidos_del_dia(streams):
 # ==========================================
 def generar_archivos():
     now = datetime.datetime.now()
-    print(f"[{now.strftime('%Y-%m-%d %H:%M')}] Filtrando exclusivamente partidos de Leagues Cup...")
+    print(f"[{now.strftime('%Y-%m-%d %H:%M')}] Generando guía XMLTV y lista M3U con nuevos títulos...")
 
     streams = obtener_streams_xtream()
     partidos = extraer_partidos_del_dia(streams)
@@ -101,47 +120,47 @@ def generar_archivos():
         ch_id = f"LeaguesCup{i}"
         ch_name = f"Leagues Cup {i}"
 
-        # Nodo canal XML
         channel_elem = ET.SubElement(tv, "channel", {"id": ch_id})
         dn = ET.SubElement(channel_elem, "display-name")
         dn.text = ch_name
         ET.SubElement(channel_elem, "icon", {"src": "https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"})
 
-        # Asignar evento de Leagues Cup o estado de espera si aún no hay transmisión activa
         if i - 1 < len(partidos):
             evento = partidos[i - 1]
             titulo_partido = evento["titulo"]
+            desc_partido = evento["desc"]
             url_stream = evento["url"]
         else:
-            titulo_partido = "Sin partido de Leagues Cup programado en este momento"
+            titulo_partido = "Sin Partido Programado: En Vivo"
+            desc_partido = "No hay partidos de Leagues Cup activos asignados a este canal en este momento. Consulta más tarde."
             url_stream = f"{SERVER_URL}/live/{USERNAME}/{PASSWORD}/1053641.ts"
 
-        # Entrada M3U
         m3u_content += f'#EXTINF:-1 tvg-id="{ch_id}" tvg-name="{ch_name}" tvg-logo="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png" group-title="Leagues Cup",{ch_name}\n'
         m3u_content += f'{url_stream}\n'
 
-        # Programa XMLTV dinámico
         start_time = now.strftime("%Y%m%d") + "000000 -0600"
         end_time = (now + datetime.timedelta(days=1)).strftime("%Y%m%d") + "235959 -0600"
+        
         prog = ET.SubElement(tv, "programme", {
             "start": start_time,
             "stop": end_time,
             "channel": ch_id
         })
+        
         title = ET.SubElement(prog, "title", {"lang": "es"})
-        title.text = f"Transmisión en Vivo: {titulo_partido}"
+        title.text = titulo_partido
+        
+        desc = ET.SubElement(prog, "desc", {"lang": "es"})
+        desc.text = desc_partido
 
-    # Guardar XMLTV
     xml_str = minidom.parseString(ET.tostring(tv, encoding="utf-8")).toprettyxml(indent="  ")
     with open(PATH_XMLTV, "w", encoding="utf-8") as f:
         f.write(xml_str)
 
-    # Guardar M3U
     with open(PATH_M3U, "w", encoding="utf-8") as f:
         f.write(m3u_content)
 
-    print(f"Guía XMLTV ({PATH_XMLTV}) actualizada con filtro estricto.")
-    print(f"Playlist M3U ({PATH_M3U}) actualizada con filtro estricto.")
+    print(f"Guía XMLTV ({PATH_XMLTV}) actualizada con formato '(Local) vs (Visita): En Vivo'.")
 
 # ==========================================
 # GIT & JELLYFIN
@@ -157,7 +176,6 @@ def ejecutar_git_y_notificar():
     except Exception as e:
         print(f"Error en Git push: {e}")
 
-    # Notificar a Jellyfin
     headers = {"X-Emby-Token": JELLYFIN_API_KEY}
     try:
         r1 = requests.post(f"{JELLYFIN_URL}/ScheduledTasks/Running/0c9ee3a88fc15547c6852205480da1fd", headers=headers)

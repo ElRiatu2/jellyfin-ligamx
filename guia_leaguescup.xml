@@ -5,27 +5,31 @@
     <icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"/>
   </channel>
   <programme start="20260811000000 -0600" stop="20260812235959 -0600" channel="LeaguesCup1">
-    <title lang="es">Transmisión en Vivo: Charlotte Vs Pachuca | Norteamérica - Leagues Cup</title>
+    <title lang="es">Charlotte Vs Pachuca | Norteamérica - Leagues Cup: En Vivo</title>
+    <desc lang="es">Disfruta la cobertura completa de la Leagues Cup con la mejor calidad de video y señal en vivo sin interrupciones.</desc>
   </programme>
   <channel id="LeaguesCup2">
     <display-name>Leagues Cup 2</display-name>
     <icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"/>
   </channel>
   <programme start="20260811000000 -0600" stop="20260812235959 -0600" channel="LeaguesCup2">
-    <title lang="es">Transmisión en Vivo: Columbus Crew Vs Pumas UNAM | Norteamérica - Leagues Cup</title>
+    <title lang="es">Columbus Crew Vs Pumas UNAM | Norteamérica - Leagues Cup: En Vivo</title>
+    <desc lang="es">Disfruta la cobertura completa de la Leagues Cup con la mejor calidad de video y señal en vivo sin interrupciones.</desc>
   </programme>
   <channel id="LeaguesCup3">
     <display-name>Leagues Cup 3</display-name>
     <icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"/>
   </channel>
   <programme start="20260811000000 -0600" stop="20260812235959 -0600" channel="LeaguesCup3">
-    <title lang="es">Transmisión en Vivo: Cincinnati Vs Atlas | Norteamérica - Leagues Cup</title>
+    <title lang="es">Cincinnati Vs Atlas | Norteamérica - Leagues Cup: En Vivo</title>
+    <desc lang="es">Disfruta la cobertura completa de la Leagues Cup con la mejor calidad de video y señal en vivo sin interrupciones.</desc>
   </programme>
   <channel id="LeaguesCup4">
     <display-name>Leagues Cup 4</display-name>
     <icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"/>
   </channel>
   <programme start="20260811000000 -0600" stop="20260812235959 -0600" channel="LeaguesCup4">
-    <title lang="es">Transmisión en Vivo: Minnesota United Vs Atlante | Norteamérica - Leagues Cup</title>
+    <title lang="es">Minnesota United Vs Atlante | Norteamérica - Leagues Cup: En Vivo</title>
+    <desc lang="es">Disfruta la cobertura completa de la Leagues Cup con la mejor calidad de video y señal en vivo sin interrupciones.</desc>
   </programme>
 </tv>
