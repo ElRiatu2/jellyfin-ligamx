@@ -141,7 +141,10 @@ def generar_xmltv():
 
         channel_elem = ET.SubElement(tv, "channel", {"id": ch_id})
         dn = ET.SubElement(channel_elem, "display-name")
-        dn.text = ch_name
+        dn.text = ch_id  # Usar directamente el ID para evitar confusión de nombres en Jellyfin
+        dn_alt = ET.SubElement(channel_elem, "display-name")
+        dn_alt.text = ch_name
+        
         ET.SubElement(channel_elem, "icon", {"src": "https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"})
 
         partidos_canal = canales_programacion[ch_id]
@@ -171,14 +174,14 @@ def generar_xmltv():
 
     tree = ET.ElementTree(tv)
     tree.write(PATH_XMLTV, encoding="utf-8", xml_declaration=True)
-    print("XMLTV reescrito sin traslapes de horario.")
+    print("XMLTV generado con IDs estrictos.")
 
 def ejecutar_git_y_notificar_jellyfin():
     os.chdir(DIR_REPO)
     try:
-        subprocess.run(["git", "add", "guia_leaguescup.xml"], check=True)
+        subprocess.run(["git", "add", "."], check=True)
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        subprocess.run(["git", "commit", "-m", f"Fix XML overlap & sync EPG: {timestamp}"], check=False)
+        subprocess.run(["git", "commit", "-m", f"Fix channel mapping & sync: {timestamp}"], check=False)
         subprocess.run(["git", "push", "origin", "main"], check=True)
         print("Git Push completado.")
     except Exception as e:
@@ -199,10 +202,6 @@ def ejecutar_git_y_notificar_jellyfin():
                     requests.post(f"{JELLYFIN_URL}/ScheduledTasks/Running/{task_id}", headers=headers, timeout=10)
                     print(f"Tarea de actualización disparada en Jellyfin (ID: {task_id})")
                     break
-        elif tasks_res.status_code == 401:
-            print("Error 401: API Key rechazada. Por favor, genera una nueva API Key en Jellyfin (Panel de Control > Avanzado > Claves API) y actualiza la variable JELLYFIN_API_KEY.")
-        else:
-            print(f"Error al consultar ScheduledTasks: Status {tasks_res.status_code}")
     except Exception as e:
         print(f"Error al conectar con la API de Jellyfin: {e}")
 
