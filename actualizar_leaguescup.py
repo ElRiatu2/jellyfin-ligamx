@@ -36,15 +36,18 @@ def obtener_streams_xtream():
 
 def formatear_partido(nombre_raw):
     """
-    Parsea los equipos para generar el formato '(Local) vs (Visita): En Vivo'
-    y construye una descripción atractiva para Jellyfin.
+    Parsea los equipos para generar el formato '(Local) vs (Visita): En Vivo',
+    extrae horario de inicio si viene en el string y arma la descripción.
     """
-    # Limpiar horas/fechas iniciales (ej: '20:15 09/08 | ')
+    # Intentar extraer hora (ej: "20:15")
+    match_hora = re.search(r'(\d{2}:\d{2})', nombre_raw)
+    hora_str = match_hora.group(1) if match_hora else None
+
+    # Limpiar cadenas secundarias y fechas
     limpio = re.sub(r'^\d{2}:\d{2}\s+\d{2}/\d{2}\s*\|\s*', '', nombre_raw)
-    # Quitar etiquetas secundarias al final
     limpio = re.sub(r'\s*\|\s*(leagues cup|op\d+|hd|fhd|uhd|4k|sd).*$', '', limpio, flags=re.IGNORECASE).strip()
 
-    # Separar equipos por 'vs', 'v' o '-'
+    # Separar equipos
     match = re.split(r'\s+(?:vs\.?|v\.?|-)\s+', limpio, flags=re.IGNORECASE)
 
     if len(match) == 2:
@@ -52,13 +55,13 @@ def formatear_partido(nombre_raw):
         visita = match[1].strip()
         titulo = f"{local} vs {visita}: En Vivo"
         desc = (f"Transmisión en vivo del duelo de Leagues Cup entre {local} y {visita}. "
-                f"Sigue cada jugada y emoción en alta definición totalmente en directo.")
+                f"Sigue cada jugada en alta definición totalmente en directo.")
     else:
         titulo = f"{limpio}: En Vivo"
         desc = ("Disfruta la cobertura completa de la Leagues Cup con la mejor calidad "
                 "de video y señal en vivo sin interrupciones.")
 
-    return titulo, desc
+    return titulo, desc, hora_str
 
 def extraer_partidos_del_dia(streams):
     EXCLUSIONES = [
@@ -84,16 +87,17 @@ def extraer_partidos_del_dia(streams):
         if "leagues cup" in nombre_lower or "leagues" in nombre_lower:
             url_stream = f"{SERVER_URL}/live/{USERNAME}/{PASSWORD}/{stream_id}.ts"
             
-            titulo, desc = formatear_partido(nombre)
+            titulo, desc, hora_str = formatear_partido(nombre)
 
             eventos_encontrados.append({
                 "titulo": titulo,
                 "desc": desc,
+                "hora_inicio": hora_str,
                 "url": url_stream,
                 "stream_id": stream_id
             })
 
-    # Eliminar duplicados manteniendo el orden
+    # Eliminar duplicados
     eventos_unicos = []
     vistos = set()
     for ev in eventos_encontrados:
@@ -108,7 +112,7 @@ def extraer_partidos_del_dia(streams):
 # ==========================================
 def generar_archivos():
     now = datetime.datetime.now()
-    print(f"[{now.strftime('%Y-%m-%d %H:%M')}] Generando guía XMLTV y lista M3U con nuevos títulos...")
+    print(f"[{now.strftime('%Y-%m-%d %H:%M')}] Procesando eventos de Leagues Cup...")
 
     streams = obtener_streams_xtream()
     partidos = extraer_partidos_del_dia(streams)
@@ -130,17 +134,34 @@ def generar_archivos():
             titulo_partido = evento["titulo"]
             desc_partido = evento["desc"]
             url_stream = evento["url"]
-        else:
-            titulo_partido = "Sin Partido Programado: En Vivo"
-            desc_partido = "No hay partidos de Leagues Cup activos asignados a este canal en este momento. Consulta más tarde."
-            url_stream = f"{SERVER_URL}/live/{USERNAME}/{PASSWORD}/1053641.ts"
 
+            # Calcular bloque de horario
+            if evento["hora_inicio"]:
+                try:
+                    h, m = map(int, evento["hora_inicio"].split(":"))
+                    dt_start = now.replace(hour=h, minute=m, second=0, microsecond=0)
+                    dt_end = dt_start + datetime.timedelta(hours=2, minutes=30)
+                    start_time = dt_start.strftime("%Y%m%d%H%M%S -0600")
+                    end_time = dt_end.strftime("%Y%m%d%H%M%S -0600")
+                except Exception:
+                    start_time = now.strftime("%Y%m%d") + "000000 -0600"
+                    end_time = (now + datetime.timedelta(days=1)).strftime("%Y%m%d") + "235959 -0600"
+            else:
+                start_time = now.strftime("%Y%m%d") + "000000 -0600"
+                end_time = (now + datetime.timedelta(days=1)).strftime("%Y%m%d") + "235959 -0600"
+
+        else:
+            titulo_partido = "Sin partido programado"
+            desc_partido = "No hay partidos de Leagues Cup activos asignados a este canal en este horario."
+            url_stream = ""  # Sin URL cuando no hay partido activo
+            start_time = now.strftime("%Y%m%d") + "000000 -0600"
+            end_time = (now + datetime.timedelta(days=1)).strftime("%Y%m%d") + "235959 -0600"
+
+        # M3U
         m3u_content += f'#EXTINF:-1 tvg-id="{ch_id}" tvg-name="{ch_name}" tvg-logo="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png" group-title="Leagues Cup",{ch_name}\n'
         m3u_content += f'{url_stream}\n'
 
-        start_time = now.strftime("%Y%m%d") + "000000 -0600"
-        end_time = (now + datetime.timedelta(days=1)).strftime("%Y%m%d") + "235959 -0600"
-        
+        # XMLTV
         prog = ET.SubElement(tv, "programme", {
             "start": start_time,
             "stop": end_time,
@@ -160,7 +181,7 @@ def generar_archivos():
     with open(PATH_M3U, "w", encoding="utf-8") as f:
         f.write(m3u_content)
 
-    print(f"Guía XMLTV ({PATH_XMLTV}) actualizada con formato '(Local) vs (Visita): En Vivo'.")
+    print(f"Guía XMLTV ({PATH_XMLTV}) y M3U ({PATH_M3U}) sincronizados correctamente.")
 
 # ==========================================
 # GIT & JELLYFIN
