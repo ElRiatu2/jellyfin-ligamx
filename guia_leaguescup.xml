@@ -5,27 +5,27 @@
     <icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"/>
   </channel>
   <programme start="20260811000000 -0600" stop="20260812235959 -0600" channel="LeaguesCup1">
-    <title lang="es">Transmisión en Vivo: America vs Portland Timbers</title>
+    <title lang="es">Transmisión en Vivo: UEFA Champions League | Bodø/Glimt vs. Union Saint-Gilloise</title>
   </programme>
   <channel id="LeaguesCup2">
     <display-name>Leagues Cup 2</display-name>
     <icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"/>
   </channel>
   <programme start="20260811000000 -0600" stop="20260812235959 -0600" channel="LeaguesCup2">
-    <title lang="es">Transmisión en Vivo: San Diego vs Tijuana</title>
+    <title lang="es">Transmisión en Vivo: Rugby | Sharks vs. Nueva Zelanda | HD ||</title>
   </programme>
   <channel id="LeaguesCup3">
     <display-name>Leagues Cup 3</display-name>
     <icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"/>
   </channel>
   <programme start="20260811000000 -0600" stop="20260812235959 -0600" channel="LeaguesCup3">
-    <title lang="es">Transmisión en Vivo: Cruz Azul vs NYCFC</title>
+    <title lang="es">Transmisión en Vivo: UEFA Champions League | NEC vs. Olympiakos Piraeus</title>
   </programme>
   <channel id="LeaguesCup4">
     <display-name>Leagues Cup 4</display-name>
     <icon src="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"/>
   </channel>
   <programme start="20260811000000 -0600" stop="20260812235959 -0600" channel="LeaguesCup4">
-    <title lang="es">Transmisión en Vivo: Necaxa vs Atlanta</title>
+    <title lang="es">Transmisión en Vivo: UEFA Champions League | Sturm Graz vs. Fenerbahçe</title>
   </programme>
 </tv>

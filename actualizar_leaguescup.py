@@ -34,99 +34,106 @@ def obtener_streams_xtream():
         print(f"Error al obtener streams de Xtream: {e}")
     return []
 
-def buscar_stream_evento(nombre_partido, lista_streams):
+def extraer_partidos_del_dia(streams):
+    """
+    Filtra los eventos activos o programados de Leagues Cup / Fútbol del día desde Xtream.
+    """
     EXCLUSIONES = [
         "latin america", "directv sports", "sky sports", "espn", 
         "fox sports", "bein sports", "movistar", "pack futbol"
     ]
     
-    equipos = [
-        re.sub(r'[^a-zA-Z0-9]', '', eq.lower()) 
-        for eq in re.split(r'\bvs\b|\bv\b|\b-\b', nombre_partido, flags=re.IGNORECASE) 
-        if eq.strip()
-    ]
-    
-    candidatos_evento = []
-    candidatos_opcion = []
+    hoy_str = datetime.datetime.now().strftime("%d/%m")
+    eventos_encontrados = []
 
-    for stream in lista_streams:
-        nombre_stream = stream.get("name", "").lower()
+    for stream in streams:
+        nombre = stream.get("name", "")
+        nombre_lower = nombre.lower()
         stream_id = stream.get("stream_id")
-        
+
         if not stream_id:
             continue
 
-        if any(excl in nombre_stream for excl in EXCLUSIONES) and "vs" not in nombre_stream:
+        # Evitar canales genéricos
+        if any(excl in nombre_lower for excl in EXCLUSIONES) and "vs" not in nombre_lower:
             continue
 
-        coincide_equipo = any(eq in nombre_stream for eq in equipos if len(eq) > 3)
-        
-        if coincide_equipo:
-            if "leagues cup" in nombre_stream or "vs" in nombre_stream or "op" in nombre_stream:
-                candidatos_evento.append(stream_id)
-            else:
-                candidatos_opcion.append(stream_id)
+        # Debe ser un partido/evento (tener 'vs' o 'v' o 'leagues cup')
+        if "vs" in nombre_lower or "leagues cup" in nombre_lower:
+            # Si el canal trae fecha en el nombre, preferir los de hoy
+            url_stream = f"{SERVER_URL}/live/{USERNAME}/{PASSWORD}/{stream_id}.ts"
+            
+            # Limpiar nombre comercial
+            nombre_limpio = re.sub(r'^\d{2}:\d{2}\s+\d{2}/\d{2}\s*\|\s*', '', nombre)
+            nombre_limpio = re.sub(r'\s*\|\s*(OP\d+|HD|FHD|UHD|4K|SD)\s*$', '', nombre_limpio, flags=re.IGNORECASE)
 
-    target_id = None
-    if candidatos_evento:
-        target_id = candidatos_evento[0]
-    elif candidatos_opcion:
-        target_id = candidatos_opcion[0]
+            eventos_encontrados.append({
+                "titulo": nombre_limpio,
+                "url": url_stream,
+                "stream_id": stream_id
+            })
 
-    if target_id:
-        return f"{SERVER_URL}/live/{USERNAME}/{PASSWORD}/{target_id}.ts"
-    
-    return None
+    # Eliminar duplicados manteniendo el orden
+    eventos_unicos = []
+    vistos = set()
+    for ev in eventos_encontrados:
+        if ev["titulo"] not in vistos:
+            vistos.add(ev["titulo"])
+            eventos_unicos.append(ev)
+
+    return eventos_unicos
 
 # ==========================================
 # GENERACIÓN DE ARCHIVOS
 # ==========================================
 def generar_archivos():
     now = datetime.datetime.now()
-    print(f"[{now.strftime('%Y-%m-%d %H:%M')}] Iniciando generación de Guía XMLTV y M3U...")
+    print(f"[{now.strftime('%Y-%m-%d %H:%M')}] Buscando partidos actualizados...")
 
     streams = obtener_streams_xtream()
+    partidos = extraer_partidos_del_dia(streams)
 
-    canales = [
-        {"id": "LeaguesCup1", "name": "Leagues Cup 1", "busqueda": "America vs Portland Timbers"},
-        {"id": "LeaguesCup2", "name": "Leagues Cup 2", "busqueda": "San Diego vs Tijuana"},
-        {"id": "LeaguesCup3", "name": "Leagues Cup 3", "busqueda": "Cruz Azul vs NYCFC"},
-        {"id": "LeaguesCup4", "name": "Leagues Cup 4", "busqueda": "Necaxa vs Atlanta"}
-    ]
-
-    # Crear XMLTV
     tv = ET.Element("tv", {"generator-info-name": "GeneradorLeaguesCup"})
-
     m3u_content = "#EXTM3U\n"
 
-    for idx, ch in enumerate(canales, 1):
-        # Nodo de canal en XML
-        channel_elem = ET.SubElement(tv, "channel", {"id": ch["id"]})
-        dn = ET.SubElement(channel_elem, "display-name")
-        dn.text = ch["name"]
-        icon = ET.SubElement(channel_elem, "icon", {"src": "https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"})
+    # Definir slots fijos para la guía (hasta 4 canales de Leagues Cup)
+    num_canales = max(4, len(partidos))
 
-        # Buscar URL real del stream
-        url_stream = buscar_stream_evento(ch["busqueda"], streams)
-        if not url_stream:
+    for i in range(1, 5):
+        ch_id = f"LeaguesCup{i}"
+        ch_name = f"Leagues Cup {i}"
+
+        # Nodo canal XML
+        channel_elem = ET.SubElement(tv, "channel", {"id": ch_id})
+        dn = ET.SubElement(channel_elem, "display-name")
+        dn.text = ch_name
+        ET.SubElement(channel_elem, "icon", {"src": "https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"})
+
+        # Asignar evento de la lista o standby si no hay partido asignado
+        if i - 1 < len(partidos):
+            evento = partidos[i - 1]
+            titulo_partido = evento["titulo"]
+            url_stream = evento["url"]
+        else:
+            titulo_partido = "Sin transmisión programada por el momento"
             url_stream = f"{SERVER_URL}/live/{USERNAME}/{PASSWORD}/1053641.ts"
 
-        # M3U Entry
-        m3u_content += f'#EXTINF:-1 tvg-id="{ch["id"]}" tvg-name="{ch["name"]}" tvg-logo="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png" group-title="Leagues Cup",{ch["name"]}\n'
+        # Entrada M3U
+        m3u_content += f'#EXTINF:-1 tvg-id="{ch_id}" tvg-name="{ch_name}" tvg-logo="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png" group-title="Leagues Cup",{ch_name}\n'
         m3u_content += f'{url_stream}\n'
 
-        # Programme ficticio para mantener la guía viva con offset -0600
+        # Programa XMLTV dinámico para el día actual
         start_time = now.strftime("%Y%m%d") + "000000 -0600"
         end_time = (now + datetime.timedelta(days=1)).strftime("%Y%m%d") + "235959 -0600"
         prog = ET.SubElement(tv, "programme", {
             "start": start_time,
             "stop": end_time,
-            "channel": ch["id"]
+            "channel": ch_id
         })
         title = ET.SubElement(prog, "title", {"lang": "es"})
-        title.text = f"Transmisión en Vivo: {ch['busqueda']}"
+        title.text = f"Transmisión en Vivo: {titulo_partido}"
 
-    # Guardar XML
+    # Guardar XMLTV
     xml_str = minidom.parseString(ET.tostring(tv, encoding="utf-8")).toprettyxml(indent="  ")
     with open(PATH_XMLTV, "w", encoding="utf-8") as f:
         f.write(xml_str)
@@ -135,8 +142,8 @@ def generar_archivos():
     with open(PATH_M3U, "w", encoding="utf-8") as f:
         f.write(m3u_content)
 
-    print(f"Guía XMLTV ({PATH_XMLTV}) actualizada.")
-    print(f"Playlist M3U ({PATH_M3U}) actualizada.")
+    print(f"Guía XMLTV ({PATH_XMLTV}) actualizada dinámicamente.")
+    print(f"Playlist M3U ({PATH_M3U}) actualizada dinámicamente.")
 
 # ==========================================
 # GIT & JELLYFIN
