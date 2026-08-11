@@ -2808,3 +2808,11 @@ To https://github.com/ElRiatu2/jellyfin-ligamx.git
 Guía XMLTV (/home/alam/jellyfin_ligamx/guia_leaguescup.xml) actualizada.
 Playlist M3U (/home/alam/jellyfin_ligamx/cable.m3u8) actualizada.
 ¡Push a repositorio 'jellyfin-ligamx' exitoso!
+[main b9c2194] Auto-update: 2026-08-10 17:45
+ 1 file changed, 8 insertions(+)
+To https://github.com/ElRiatu2/jellyfin-ligamx.git
+   38e5e8a..b9c2194  main -> main
+[2026-08-10 17:45] Iniciando generación de Guía XMLTV y M3U...
+Guía XMLTV (/home/alam/jellyfin_ligamx/guia_leaguescup.xml) actualizada.
+Playlist M3U (/home/alam/jellyfin_ligamx/cable.m3u8) actualizada.
+¡Push a repositorio 'jellyfin-ligamx' exitoso!
