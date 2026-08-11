@@ -141,9 +141,7 @@ def generar_xmltv():
 
         channel_elem = ET.SubElement(tv, "channel", {"id": ch_id})
         dn = ET.SubElement(channel_elem, "display-name")
-        dn.text = ch_id  # Usar directamente el ID para evitar confusión de nombres en Jellyfin
-        dn_alt = ET.SubElement(channel_elem, "display-name")
-        dn_alt.text = ch_name
+        dn.text = ch_name
         
         ET.SubElement(channel_elem, "icon", {"src": "https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"})
 
@@ -174,14 +172,14 @@ def generar_xmltv():
 
     tree = ET.ElementTree(tv)
     tree.write(PATH_XMLTV, encoding="utf-8", xml_declaration=True)
-    print("XMLTV generado con IDs estrictos.")
+    print("XMLTV reescrito de forma limpia.")
 
 def ejecutar_git_y_notificar_jellyfin():
     os.chdir(DIR_REPO)
     try:
         subprocess.run(["git", "add", "."], check=True)
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        subprocess.run(["git", "commit", "-m", f"Fix channel mapping & sync: {timestamp}"], check=False)
+        subprocess.run(["git", "commit", "-m", f"Clean XML & sync EPG: {timestamp}"], check=False)
         subprocess.run(["git", "push", "origin", "main"], check=True)
         print("Git Push completado.")
     except Exception as e:
