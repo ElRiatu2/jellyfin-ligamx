@@ -11,11 +11,10 @@ USERNAME = "ALAM5462"
 PASSWORD = "jVf3Q5Bg"
 
 PATH_XMLTV = "/home/alam/jellyfin_ligamx/guia_leaguescup.xml"
-PATH_M3U = "/home/alam/jellyfin_ligamx/cable.m3u8"
 DIR_REPO = "/home/alam/jellyfin_ligamx"
 
 JELLYFIN_URL = "http://localhost:8096"
-JELLYFIN_API_KEY = "9a7db1b27e224e70876ff2a7e7bcbf20"
+JELLYFIN_API_KEY = "3f91f99eff164770b01b000254cc7693"
 
 def obtener_streams_xtream():
     url = f"{SERVER_URL}/player_api.php?username={USERNAME}&password={PASSWORD}&action=get_live_streams"
@@ -66,7 +65,6 @@ def extraer_partidos_del_dia(streams, now):
             continue
 
         if "leagues cup" in nombre_lower or "leagues" in nombre_lower:
-            url_stream = f"{SERVER_URL}/live/{USERNAME}/{PASSWORD}/{stream_id}.ts"
             titulo, desc, hora_str = formatear_partido(nombre)
 
             if hora_str:
@@ -84,8 +82,7 @@ def extraer_partidos_del_dia(streams, now):
                 "titulo": titulo,
                 "desc": desc,
                 "dt_start": dt_start,
-                "dt_end": dt_end,
-                "url": url_stream
+                "dt_end": dt_end
             })
 
     eventos.sort(key=lambda x: x["dt_start"])
@@ -100,64 +97,56 @@ def extraer_partidos_del_dia(streams, now):
 
     return unicos
 
-def distribuir_sin_traslapes(partidos):
-    # Asigna eventos a canales garantizando QUE NINGÚN EVENTO SE EMPALME
-    canales = []  # Lista de listas de eventos
+def distribuir_en_los_4_canales_fijos(partidos):
+    canales = {f"LeaguesCup{i}": [] for i in range(1, 5)}
 
     for partido in partidos:
         colocado = False
-        for canal in canales:
-            # Checar si traslapa con algún partido ya metido en este canal
+        for ch_id in ["LeaguesCup1", "LeaguesCup2", "LeaguesCup3", "LeaguesCup4"]:
             traslapa = False
-            for p in canal:
+            for p in canales[ch_id]:
                 if not (partido["dt_end"] <= p["dt_start"] or partido["dt_start"] >= p["dt_end"]):
                     traslapa = True
                     break
             if not traslapa:
-                canal.append(partido)
+                canales[ch_id].append(dict(partido))
                 colocado = True
                 break
         
-        # Si traslapa en todos los canales existentes, abre un nuevo canal
         if not colocado:
-            canales.append([partido])
+            canal_menos_cargado = min(canales, key=lambda k: len(canales[k]))
+            canales[canal_menos_cargado].append(dict(partido))
 
-    # Garantizar al menos 4 canales
-    while len(canales) < 4:
-        canales.append([])
+    for ch_id in canales:
+        canales[ch_id].sort(key=lambda x: x["dt_start"])
+        for i in range(len(canales[ch_id]) - 1):
+            actual = canales[ch_id][i]
+            siguiente = canales[ch_id][i + 1]
+            if actual["dt_end"] > siguiente["dt_start"]:
+                actual["dt_end"] = siguiente["dt_start"]
 
     return canales
 
-def generar_archivos():
+def generar_xmltv():
     now = datetime.datetime.now()
     streams = obtener_streams_xtream()
     partidos = extraer_partidos_del_dia(streams, now)
-    canales_lista = distribuir_sin_traslapes(partidos)
+    canales_programacion = distribuir_en_los_4_canales_fijos(partidos)
 
-    tv = ET.Element("tv", {"generator-info-name": "GeneradorLeaguesCup"})
-    m3u_content = "#EXTM3U\n"
+    tv = ET.Element("tv", {"generator-info-name": "GeneradorLeaguesCup Fijo 4 Canales"})
 
-    # CANALES
-    for idx in range(len(canales_lista)):
-        num = idx + 1
-        ch_id = f"LeaguesCup{num}"
-        ch_name = f"Leagues Cup {num}"
+    for i in range(1, 5):
+        ch_id = f"LeaguesCup{i}"
+        ch_name = f"Leagues Cup {i}"
 
         channel_elem = ET.SubElement(tv, "channel", {"id": ch_id})
         dn = ET.SubElement(channel_elem, "display-name")
         dn.text = ch_name
         ET.SubElement(channel_elem, "icon", {"src": "https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png"})
 
-    # PROGRAMAS Y M3U
-    for idx, partidos_canal in enumerate(canales_lista):
-        num = idx + 1
-        ch_id = f"LeaguesCup{num}"
-        ch_name = f"Leagues Cup {num}"
-        url_activa_m3u = ""
+        partidos_canal = canales_programacion[ch_id]
 
         if partidos_canal:
-            partidos_canal.sort(key=lambda x: x["dt_start"])
-
             for p in partidos_canal:
                 start_str = p["dt_start"].strftime("%Y%m%d%H%M%S -0600")
                 end_str = p["dt_end"].strftime("%Y%m%d%H%M%S -0600")
@@ -171,57 +160,52 @@ def generar_archivos():
                 title.text = p["titulo"]
                 desc = ET.SubElement(prog, "desc", {"lang": "es"})
                 desc.text = p["desc"]
-
-                if p["dt_start"] <= now <= p["dt_end"]:
-                    url_activa_m3u = p["url"]
-
-            if not url_activa_m3u:
-                proximos = [p for p in partidos_canal if p["dt_start"] > now]
-                if proximos:
-                    url_activa_m3u = proximos[0]["url"]
-                else:
-                    url_activa_m3u = partidos_canal[-1]["url"]
         else:
             start_str = now.strftime("%Y%m%d000000 -0600")
             end_str = (now + datetime.timedelta(days=1)).strftime("%Y%m%d235959 -0600")
             prog = ET.SubElement(tv, "programme", {"start": start_str, "stop": end_str, "channel": ch_id})
             title = ET.SubElement(prog, "title", {"lang": "es"})
-            title.text = "Sin partido programado"
+            title.text = "Sin evento programado"
             desc = ET.SubElement(prog, "desc", {"lang": "es"})
-            desc.text = "No hay partidos asignados a este canal en este momento."
-            url_activa_m3u = "http://localhost/empty.ts"
-
-        m3u_content += f'#EXTINF:-1 tvg-id="{ch_id}" tvg-name="{ch_name}" tvg-logo="https://brandlogos.net/wp-content/uploads/2025/02/leagues_cup-logo_brandlogos.net_gxi1m.png" group-title="Leagues Cup",{ch_name}\n'
-        m3u_content += f'{url_activa_m3u}\n'
+            desc.text = "No hay transmisión activa en este canal."
 
     tree = ET.ElementTree(tv)
     tree.write(PATH_XMLTV, encoding="utf-8", xml_declaration=True)
+    print("XMLTV reescrito sin traslapes de horario.")
 
-    with open(PATH_M3U, "w", encoding="utf-8") as f:
-        f.write(m3u_content)
-
-    print("XMLTV y M3U reescritos sin traslapes horarios.")
-
-def ejecutar_git_y_notificar():
+def ejecutar_git_y_notificar_jellyfin():
     os.chdir(DIR_REPO)
     try:
-        subprocess.run(["git", "add", "."], check=True)
+        subprocess.run(["git", "add", "guia_leaguescup.xml"], check=True)
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        subprocess.run(["git", "commit", "-m", f"Fix overlap channels: {timestamp}"], check=False)
+        subprocess.run(["git", "commit", "-m", f"Fix XML overlap & sync EPG: {timestamp}"], check=False)
         subprocess.run(["git", "push", "origin", "main"], check=True)
-        print("Push a repositorio exitoso!")
+        print("Git Push completado.")
     except Exception as e:
-        print(f"Error en Git push: {e}")
+        print(f"Error en Git: {e}")
 
-    headers = {"X-Emby-Token": JELLYFIN_API_KEY}
+    headers = {
+        "X-Emby-Token": JELLYFIN_API_KEY,
+        "Authorization": f'MediaBrowser Token="{JELLYFIN_API_KEY}"'
+    }
+    
     try:
-        r1 = requests.post(f"{JELLYFIN_URL}/ScheduledTasks/Running/0c9ee3a88fc15547c6852205480da1fd", headers=headers)
-        r2 = requests.post(f"{JELLYFIN_URL}/ScheduledTasks/Running/bea9b218c97bbf98c5dc1303bdb9a0ca", headers=headers)
-        if r1.status_code in [200, 204] and r2.status_code in [200, 204]:
-            print("[Jellyfin] Tareas activadas.")
+        tasks_res = requests.get(f"{JELLYFIN_URL}/ScheduledTasks", headers=headers, timeout=10)
+        if tasks_res.status_code == 200:
+            tasks = tasks_res.json()
+            for task in tasks:
+                if task.get("Key") == "RefreshGuide" or "Guide" in task.get("Name", ""):
+                    task_id = task.get("Id")
+                    requests.post(f"{JELLYFIN_URL}/ScheduledTasks/Running/{task_id}", headers=headers, timeout=10)
+                    print(f"Tarea de actualización disparada en Jellyfin (ID: {task_id})")
+                    break
+        elif tasks_res.status_code == 401:
+            print("Error 401: API Key rechazada. Por favor, genera una nueva API Key en Jellyfin (Panel de Control > Avanzado > Claves API) y actualiza la variable JELLYFIN_API_KEY.")
+        else:
+            print(f"Error al consultar ScheduledTasks: Status {tasks_res.status_code}")
     except Exception as e:
-        print(f"Error en API Jellyfin: {e}")
+        print(f"Error al conectar con la API de Jellyfin: {e}")
 
 if __name__ == "__main__":
-    generar_archivos()
-    ejecutar_git_y_notificar()
+    generar_xmltv()
+    ejecutar_git_y_notificar_jellyfin()
