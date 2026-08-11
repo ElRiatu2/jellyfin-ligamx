@@ -12,7 +12,7 @@
   <channel id="LeaguesCup4">
     <display-name>Leagues Cup 4</display-name>
   </channel>
-  <programme start="20260811173000 -0600" stop="20260811200000 -0600" channel="LeaguesCup1">
+  <programme start="20260811173000 -0600" stop="20260811193000 -0600" channel="LeaguesCup1">
     <title lang="es">Charlotte Vs Pachuca</title>
     <sub-title lang="es">Leagues Cup · 5:30 PM</sub-title>
     <desc lang="es">Charlotte Vs Pachuca. Inicio: 11/08/2026 a las 5:30 PM. Canal: Leagues Cup 1.</desc>
@@ -36,10 +36,16 @@
     <desc lang="es">Minnesota United Vs Atlante. Inicio: 11/08/2026 a las 6:30 PM. Canal: Leagues Cup 4.</desc>
     <category lang="es">Deportes</category>
   </programme>
-  <programme start="20260811200000 -0600" stop="20260811223000 -0600" channel="LeaguesCup1">
+  <programme start="20260811193000 -0600" stop="20260811220000 -0600" channel="LeaguesCup1">
+    <title lang="es">Real Salt Lake Vs Juárez</title>
+    <sub-title lang="es">Leagues Cup · 7:30 PM</sub-title>
+    <desc lang="es">Real Salt Lake Vs Juárez. Inicio: 11/08/2026 a las 7:30 PM. Canal: Leagues Cup 1.</desc>
+    <category lang="es">Deportes</category>
+  </programme>
+  <programme start="20260811200000 -0600" stop="20260811223000 -0600" channel="LeaguesCup2">
     <title lang="es">Tigres UANL Vs Vancouver Whitecaps</title>
     <sub-title lang="es">Leagues Cup · 8:00 PM</sub-title>
-    <desc lang="es">Tigres UANL Vs Vancouver Whitecaps. Inicio: 11/08/2026 a las 8:00 PM. Canal: Leagues Cup 1.</desc>
+    <desc lang="es">Tigres UANL Vs Vancouver Whitecaps. Inicio: 11/08/2026 a las 8:00 PM. Canal: Leagues Cup 2.</desc>
     <category lang="es">Deportes</category>
   </programme>
 </tv>
