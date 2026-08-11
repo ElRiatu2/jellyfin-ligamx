@@ -3332,3 +3332,10 @@ To https://github.com/ElRiatu2/jellyfin-ligamx.git
 XMLTV reescrito de forma limpia.
 Git Push completado.
 Tarea de actualización disparada en Jellyfin (ID: bea9b218c97bbf98c5dc1303bdb9a0ca)
+[main 39e06f6] Clean XML & sync EPG: 2026-08-11 10:00
+ 1 file changed, 7 insertions(+)
+To https://github.com/ElRiatu2/jellyfin-ligamx.git
+   c43070b..39e06f6  main -> main
+XMLTV reescrito de forma limpia.
+Git Push completado.
+Tarea de actualización disparada en Jellyfin (ID: bea9b218c97bbf98c5dc1303bdb9a0ca)
