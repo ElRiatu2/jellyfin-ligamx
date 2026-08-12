@@ -12,4 +12,46 @@
   <channel id="LeaguesCup4">
     <display-name>Leagues Cup 4</display-name>
   </channel>
+  <programme start="20260812173000 -0600" stop="20260812200000 -0600" channel="LeaguesCup1">
+    <title lang="es">Inter Miami vs. León</title>
+    <sub-title lang="es">Leagues Cup · 5:30 PM</sub-title>
+    <desc lang="es">Inter Miami vs. León. Inicio: 12/08/2026 a las 5:30 PM. Canal: Leagues Cup 1.</desc>
+    <category lang="es">Deportes</category>
+  </programme>
+  <programme start="20260812173000 -0600" stop="20260812200000 -0600" channel="LeaguesCup2">
+    <title lang="es">Orlando City SC vs. Atlético San Luis</title>
+    <sub-title lang="es">Leagues Cup · 5:30 PM</sub-title>
+    <desc lang="es">Orlando City SC vs. Atlético San Luis. Inicio: 12/08/2026 a las 5:30 PM. Canal: Leagues Cup 2.</desc>
+    <category lang="es">Deportes</category>
+  </programme>
+  <programme start="20260812180000 -0600" stop="20260812203000 -0600" channel="LeaguesCup3">
+    <title lang="es">Monterrey vs. Nashville SC</title>
+    <sub-title lang="es">Leagues Cup · 6:00 PM</sub-title>
+    <desc lang="es">Monterrey vs. Nashville SC. Inicio: 12/08/2026 a las 6:00 PM. Canal: Leagues Cup 3.</desc>
+    <category lang="es">Deportes</category>
+  </programme>
+  <programme start="20260812200000 -0600" stop="20260812223000 -0600" channel="LeaguesCup4">
+    <title lang="es">Toluca vs. Dallas</title>
+    <sub-title lang="es">Leagues Cup · 8:00 PM</sub-title>
+    <desc lang="es">Toluca vs. Dallas. Inicio: 12/08/2026 a las 8:00 PM. Canal: Leagues Cup 4.</desc>
+    <category lang="es">Deportes</category>
+  </programme>
+  <programme start="20260812201500 -0600" stop="20260812224500 -0600" channel="LeaguesCup1">
+    <title lang="es">San Diego vs. Puebla</title>
+    <sub-title lang="es">Leagues Cup · 8:15 PM</sub-title>
+    <desc lang="es">San Diego vs. Puebla. Inicio: 12/08/2026 a las 8:15 PM. Canal: Leagues Cup 1.</desc>
+    <category lang="es">Deportes</category>
+  </programme>
+  <programme start="20260812203000 -0600" stop="20260812230000 -0600" channel="LeaguesCup2">
+    <title lang="es">Los Angeles FC vs. Querétaro</title>
+    <sub-title lang="es">Leagues Cup · 8:30 PM</sub-title>
+    <desc lang="es">Los Angeles FC vs. Querétaro. Inicio: 12/08/2026 a las 8:30 PM. Canal: Leagues Cup 2.</desc>
+    <category lang="es">Deportes</category>
+  </programme>
+  <programme start="20260812203000 -0600" stop="20260812230000 -0600" channel="LeaguesCup3">
+    <title lang="es">Seattle Sounders FC vs. Guadalajara</title>
+    <sub-title lang="es">Leagues Cup · 8:30 PM</sub-title>
+    <desc lang="es">Seattle Sounders FC vs. Guadalajara. Inicio: 12/08/2026 a las 8:30 PM. Canal: Leagues Cup 3.</desc>
+    <category lang="es">Deportes</category>
+  </programme>
 </tv>
