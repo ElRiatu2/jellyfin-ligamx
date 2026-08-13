@@ -12,16 +12,4 @@
   <channel id="LeaguesCup4">
     <display-name>Leagues Cup 4</display-name>
   </channel>
-  <programme start="20260812203000 -0600" stop="20260812230000 -0600" channel="LeaguesCup1">
-    <title lang="es">Los Angeles FC vs. Querétaro</title>
-    <sub-title lang="es">Leagues Cup · 8:30 PM</sub-title>
-    <desc lang="es">Los Angeles FC vs. Querétaro. Inicio: 12/08/2026 a las 8:30 PM. Canal: Leagues Cup 1.</desc>
-    <category lang="es">Deportes</category>
-  </programme>
-  <programme start="20260812203000 -0600" stop="20260812230000 -0600" channel="LeaguesCup2">
-    <title lang="es">Seattle Sounders FC vs. Guadalajara</title>
-    <sub-title lang="es">Leagues Cup · 8:30 PM</sub-title>
-    <desc lang="es">Seattle Sounders FC vs. Guadalajara. Inicio: 12/08/2026 a las 8:30 PM. Canal: Leagues Cup 2.</desc>
-    <category lang="es">Deportes</category>
-  </programme>
 </tv>
