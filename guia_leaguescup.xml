@@ -12,22 +12,16 @@
   <channel id="LeaguesCup4">
     <display-name>Leagues Cup 4</display-name>
   </channel>
-  <programme start="20260813183000 -0600" stop="20260813210000 -0600" channel="LeaguesCup1">
-    <title lang="es">América Vs Austin</title>
-    <sub-title lang="es">Leagues Cup · 6:30 PM</sub-title>
-    <desc lang="es">América Vs Austin. Inicio: 13/08/2026 a las 6:30 PM. Canal: Leagues Cup 1.</desc>
-    <category lang="es">Deportes</category>
-  </programme>
-  <programme start="20260813190000 -0600" stop="20260813213000 -0600" channel="LeaguesCup2">
+  <programme start="20260813190000 -0600" stop="20260813213000 -0600" channel="LeaguesCup1">
     <title lang="es">Cruz Azul Vs Chicago Fire</title>
     <sub-title lang="es">Leagues Cup · 7:00 PM</sub-title>
-    <desc lang="es">Cruz Azul Vs Chicago Fire. Inicio: 13/08/2026 a las 7:00 PM. Canal: Leagues Cup 2.</desc>
+    <desc lang="es">Cruz Azul Vs Chicago Fire. Inicio: 13/08/2026 a las 7:00 PM. Canal: Leagues Cup 1.</desc>
     <category lang="es">Deportes</category>
   </programme>
-  <programme start="20260813203000 -0600" stop="20260813230000 -0600" channel="LeaguesCup3">
+  <programme start="20260813203000 -0600" stop="20260813230000 -0600" channel="LeaguesCup2">
     <title lang="es">Portland Timbers Vs Tijuana</title>
     <sub-title lang="es">Leagues Cup · 8:30 PM</sub-title>
-    <desc lang="es">Portland Timbers Vs Tijuana. Inicio: 13/08/2026 a las 8:30 PM. Canal: Leagues Cup 3.</desc>
+    <desc lang="es">Portland Timbers Vs Tijuana. Inicio: 13/08/2026 a las 8:30 PM. Canal: Leagues Cup 2.</desc>
     <category lang="es">Deportes</category>
   </programme>
 </tv>
